@@ -6,6 +6,17 @@ use std::thread;
 use std::time::Duration;
 
 fn main() {
+    guessing_game();
+
+    println!();
+
+    let x = 5;
+    let y = 10;
+
+    println!("x = {x} and y + 2 = {}", y + 2);
+}
+
+fn guessing_game() {
     let mut rng = rand::rng();
     let secret_number = rng.random_range(1..=100);
 
@@ -46,11 +57,4 @@ fn main() {
     }
 
     println!("Goodbye!");
-
-    println!();
-
-    let x = 5;
-    let y = 10;
-
-    println!("x = {x} and y + 2 = {}", y + 2);
 }
