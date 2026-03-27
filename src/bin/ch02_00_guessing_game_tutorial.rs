@@ -1,11 +1,11 @@
+use rand::RngExt;
+use std::cmp::Ordering;
 use std::io;
 use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
-use rand::RngExt;
 
 fn main() {
-
     let mut rng = rand::rng();
     let secret_number = rng.random_range(1..=100);
 
@@ -29,11 +29,25 @@ fn main() {
 
     // 主线程最多等待 10 秒；超时就直接继续执行后续代码
     match rx.recv_timeout(Duration::from_secs(10)) {
-        Ok(guess) => println!("You guessed: {}", guess.trim_end()),
+        Ok(guess) => {
+            let guess = guess.trim_end();
+            println!("You guessed: {}", guess);
+
+            match guess.parse::<i32>() {
+                Ok(guess) => match guess.cmp(&secret_number) {
+                    Ordering::Less => println!("Too small!"),
+                    Ordering::Greater => println!("Too big!"),
+                    Ordering::Equal => println!("You win!"),
+                },
+                Err(_) => println!("Invalid input: please enter a number."),
+            }
+        }
         Err(_) => println!("10 seconds passed with no input. Continue..."),
     }
 
     println!("Goodbye!");
+
+    println!();
 
     let x = 5;
     let y = 10;
