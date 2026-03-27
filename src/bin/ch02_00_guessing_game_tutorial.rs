@@ -80,7 +80,9 @@ fn loop_guessing_game() {
         let guess: u32 = match guess.trim().parse() {
             Ok(num) => num,
             Err(_) => {
-                if guess.trim().eq_ignore_ascii_case("exit") {
+                if guess.trim().eq_ignore_ascii_case("exit")
+                    || guess.trim().eq_ignore_ascii_case("quit")
+                {
                     println!("Exiting the game. Goodbye!");
                     break;
                 }
