@@ -1,4 +1,4 @@
-use rand::RngExt;
+use rand::{RngExt, random_bool};
 use std::cmp::Ordering;
 use std::io;
 use std::sync::mpsc;
@@ -6,8 +6,11 @@ use std::thread;
 use std::time::Duration;
 
 fn main() {
-    //guessing_game();
-    loop_guessing_game();
+    if random_bool(/* f64 */ 0.3) {
+        guessing_game();
+    } else {
+        loop_guessing_game();
+    }
 
     println!();
 
@@ -76,7 +79,13 @@ fn loop_guessing_game() {
 
         let guess: u32 = match guess.trim().parse() {
             Ok(num) => num,
-            Err(_) => continue,
+            Err(_) => {
+                if guess.trim().eq_ignore_ascii_case("exit") {
+                    println!("Exiting the game. Goodbye!");
+                    break;
+                }
+                continue;
+            }
         };
 
         println!("You guessed: {guess}");
