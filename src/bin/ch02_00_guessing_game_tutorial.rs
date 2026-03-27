@@ -2,7 +2,14 @@ use std::io;
 use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
+use rand::RngExt;
+
 fn main() {
+
+    let mut rng = rand::rng();
+    let secret_number = rng.random_range(1..=100);
+
+    println!("The secret number is: {secret_number}");
     println!("Guess the number!");
     println!("Please input your guess within 10 seconds.");
 

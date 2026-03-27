@@ -5,3 +5,5 @@ edition = "2024"
 default-run = "helloworld"
 
 [dependencies]
+rand = "0.10.0"
+crossterm = "0.29.0"
