@@ -33,7 +33,7 @@ fn main() {
         loop {
             println!("remaining = {remaining}");
             if remaining == 9 {
-                break;//
+                break; //
             }
             if count == 2 {
                 break 'counting_up; // break 语句可以用于跳出当前循环，也可以指定标签来跳出外层循环
@@ -43,4 +43,26 @@ fn main() {
         count += 1;
     }
     println!("End count = {count}");
+
+
+    println!();
+    let mut number = 3;
+    while number != 0 {
+        println!("{number}!");
+
+        number -= 1;
+    }
+    println!("LIFTOFF!!!");
+
+    println!();
+    let a = [10, 20, 30, 40, 50];
+    let mut index = 0;
+
+    while index < 5 {
+        println!("the index({}) of value is: {}", index, a[index]);
+        index += 1;
+    }
+    for element in a {
+        println!("the value is: {element}");
+    }
 }
