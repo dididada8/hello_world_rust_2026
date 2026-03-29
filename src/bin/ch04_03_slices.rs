@@ -99,7 +99,34 @@ fn demo_2() {
 }
 
 fn demo_3() {
-    let first_word: for<'a> fn(&'a str) -> &str = |s: &str| {
+    /*
+    这里故意把 `first_word` 写成「函数变量」而不是普通函数：
+
+    - 普通函数写法（编译器帮你做生命周期省略）：
+      fn first_word(s: &str) -> &str
+
+      这行会按规则被理解为：
+      fn first_word<'a>(s: &'a str) -> &'a str
+      也就是“返回的切片必须和输入参数 `s` 活得一样久”。
+
+    - 函数变量 + 闭包写法，如果只写：
+      let first_word = |s: &str| -> &str { ... };
+
+      在“返回借用”的场景里，闭包推导有时不能像普通函数那样
+      自动把输入/输出生命周期关系表达清楚，容易触发生命周期错误。
+
+    所以这里显式写成：
+    `for<'a> fn(&'a str) -> &str`
+
+    含义是：
+    1) `first_word` 的变量类型是函数指针 `fn`
+    2) `for<'a>` 表示“对任意生命周期 `'a` 都成立”（高阶生命周期）
+    3) 输入是 `&'a str`，返回值也必须来自同一个输入借用
+
+    这样就把“返回引用依赖输入引用”的约束写死在类型里，
+    行为就和普通函数版本一致了。
+    */
+    let first_word: for<'a> fn(&'a str) -> &'a str = |s: &str| {
         let bytes = s.as_bytes();
         for (i, &item) in bytes.iter().enumerate() {
             if item == b' ' {
