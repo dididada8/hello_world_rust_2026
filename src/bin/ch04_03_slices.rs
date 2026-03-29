@@ -11,7 +11,6 @@ fn first_word(s: &str) -> usize {
 }
 
 fn main() {
-     
     let mut s = String::from("hello world");
 
     let word = first_word(&s); // word 将得到值 5
@@ -33,4 +32,16 @@ fn main() {
     println!("The first word is: {hello}, the second word is: {world}");
 
     print_line_separator();
+
+    let s = String::from("hello");
+
+    let len = s.len();
+
+    let slice1 = &s[0..len];
+    let slice2 = &s[..];
+    if slice1 == slice2 {
+        println!("slice1 == slice2, the word is : {}", slice1);
+    } else {
+        println!("slice1 != slice2 . {}!={}", slice1, slice2);
+    }
 }
