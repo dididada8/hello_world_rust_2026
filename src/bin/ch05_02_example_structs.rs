@@ -12,6 +12,8 @@ fn demo_1() {
     };
 
     println!("rect1 is {rect1:?}");
+    println!();
+    println!("rect1 is {rect1:#?}");
     println!("area is {}", rect1.width * rect1.height);
 }
 
