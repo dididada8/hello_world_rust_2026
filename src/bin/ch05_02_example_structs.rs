@@ -15,10 +15,15 @@ fn demo_1() {
     println!("area is {}", rect1.width * rect1.height);
 }
 
+
 fn main() {
     demo_1();
     print_line_separator();
+    another_demo();
+}
 
+
+fn another_demo() {
     let base = 10;
     // 1) 内部函数：不能捕获外部变量 `base`
     fn add_fn(x: i32) -> i32 {
