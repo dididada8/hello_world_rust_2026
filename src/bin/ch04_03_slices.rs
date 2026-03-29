@@ -10,7 +10,7 @@ fn first_word(s: &str) -> usize {
     s.len()
 }
 
-fn main() {
+fn demo_1() {
     let mut s = String::from("hello world");
 
     let word = first_word(&s); // word 将得到值 5
@@ -44,4 +44,8 @@ fn main() {
     } else {
         println!("slice1 != slice2 . {}!={}", slice1, slice2);
     }
+}
+
+fn main() {
+    demo_1();
 }
