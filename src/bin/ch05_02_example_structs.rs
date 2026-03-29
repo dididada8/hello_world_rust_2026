@@ -25,11 +25,11 @@ fn demo_2() {
     }
     let scale = 2;
     let rect1 = Rectangle {
-        width: dbg!(30 * scale),
+        width: dbg!(30 * scale), //dbg! 返回表达式的值的所有权，并且在控制台打印表达式和它的值
         height: 50,
     };
 
-    dbg!(&rect1);
+    dbg!(&rect1); //dbg! 返回表达式的值的所有权，并且在控制台打印表达式和它的值
     println!("area is {}", rect1.width * rect1.height);
 }
 
