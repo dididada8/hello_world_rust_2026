@@ -1,4 +1,4 @@
-use helloworld::print_line_separator;
+use helloworld::{print_line_separator, print_type_of};
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -105,6 +105,9 @@ fn demo_3() {
     println!("rect: {rect_json}");
 }
 
+#[derive(Debug)]
+struct AlwaysEqual;
+
 fn main() {
     demo_1();
     print_line_separator();
@@ -113,4 +116,9 @@ fn main() {
     print_line_separator();
 
     demo_3();
+    print_line_separator();
+
+    let subject = AlwaysEqual;
+    println!("subject: {:?}", subject);
+    print_type_of(&subject, Some("subject"));
 }
