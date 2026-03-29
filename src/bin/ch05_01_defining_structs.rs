@@ -49,7 +49,42 @@ fn demo_1() {
     let user_json = serde_json::to_string_pretty(&user2).expect("serialize user to json");
     println!("user2: {user_json}");
 }
+
+fn demo_2() {
+    let user1 = User {
+        email: String::from("someone@example.com"),
+        username: String::from("someusername123"),
+        active: true,
+        sign_in_count: 1,
+    };
+
+    let user2 = User {
+        active: user1.active,
+        username: user1.username,
+        email: String::from("another@example.com"),
+        sign_in_count: user1.sign_in_count,
+    };
+
+    // println!("user1.username: {}", user1.username); // error: value borrowed here after move 所有权已经转移到 user2
+    println!("user2.username: {}", user2.username);
+
+    let user1 = User {
+        email: String::from("someone@example.com"),
+        username: String::from("someusername123"),
+        active: true,
+        sign_in_count: 1,
+    };
+
+    let user2 = User {
+        email: String::from("another@example.com"),
+        ..user1
+    };
+    // println!("user1.username: {}", user1.username); // error: value borrowed here after move 所有权已经转移到 user2
+    println!("user2.username: {}", user2.username);
+}
+
 fn main() {
     demo_1();
     print_line_separator();
+    demo_2();
 }
