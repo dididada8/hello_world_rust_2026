@@ -5,7 +5,7 @@ async fn main() -> Result<(), sqlx::Error> {
     // user: postgres
     // password: gfaSSBqJf3-
     // db: localhost:5432/postgres
-    let database_url = "postgres://postgres:gfaSSBqJf3-@localhost:5432/postgres";
+    let database_url = "postgres://postgres:gfaSSBqJf3-@localhost:5432/pagila";
     let pool = PgPoolOptions::new()
         .max_connections(5)
         .connect(database_url)
