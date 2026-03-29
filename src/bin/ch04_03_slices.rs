@@ -64,7 +64,42 @@ fn demo_1() {
         println!("slice1 != slice2 . {}!={}", slice1, slice2);
     }
 }
+fn first_word(s: &str) -> &str {
+    let bytes = s.as_bytes();
+    for (i, &item) in bytes.iter().enumerate() {
+        if item == b' ' {
+            return &s[0..i];
+        }
+    }
 
+    &s[..]
+}
+
+fn demo_2() {
+
+    let my_string = String::from("hello world");
+
+    // `first_word` 适用于 `String` 的切片，无论是部分还是全部。
+    let word = first_word(&my_string[0..6]);
+    let word = first_word(&my_string[..]);
+    // `first_word` 也适用于对 `String` 的引用，这等价于
+    // `String` 的全部切片。
+    let word = first_word(&my_string);
+
+    let my_string_literal = "hello world";
+
+    // `first_word` 适用于字符串字面量的切片，无论是部分还是全部。
+    let word = first_word(&my_string_literal[0..6]);
+    let word = first_word(&my_string_literal[..]);
+
+    // 因为字符串字面量*就是*字符串切片，
+    // 这也适用，不需要切片语法！
+    let word = first_word(my_string_literal);
+    println!("The first word is: {}", word);
+}
 fn main() {
     demo_1();
+    print_line_separator();
+    println!();
+    demo_2();
 }
