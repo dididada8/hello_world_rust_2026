@@ -83,8 +83,34 @@ fn demo_2() {
     println!("user2.username: {}", user2.username);
 }
 
+
+#[derive(Serialize)]
+struct Color(i32, i32, i32);
+#[derive(Serialize)]
+struct Point(i32, i32, i32);
+#[derive(Serialize)]
+struct Rectangle {
+    color: Color,
+    point: Point,
+}
+
+fn demo_3() {
+    let black = Color(0, 0, 0);
+    let origin = Point(0, 0, 0);
+    let rect = Rectangle {
+        color: black,
+        point: origin,
+    };
+    let rect_json = serde_json::to_string_pretty(&rect).expect("serialize rect to json");
+    println!("rect: {rect_json}");
+}
+
 fn main() {
     demo_1();
     print_line_separator();
+
     demo_2();
+    print_line_separator();
+
+    demo_3();
 }
