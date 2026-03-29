@@ -17,13 +17,29 @@ fn demo_1() {
     println!("area is {}", rect1.width * rect1.height);
 }
 
+fn demo_2() {
+    #[derive(Debug)]
+    struct Rectangle {
+        width: u32,
+        height: u32,
+    }
+    let scale = 2;
+    let rect1 = Rectangle {
+        width: dbg!(30 * scale),
+        height: 50,
+    };
+
+    dbg!(&rect1);
+    println!("area is {}", rect1.width * rect1.height);
+}
 
 fn main() {
     demo_1();
     print_line_separator();
+    demo_2();
+    print_line_separator();
     another_demo();
 }
-
 
 fn another_demo() {
     let base = 10;
