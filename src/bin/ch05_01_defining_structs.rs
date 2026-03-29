@@ -8,6 +8,14 @@ struct User {
     sign_in_count: u64,
     active: bool,
 }
+fn build_user(email: String, username: String) -> User {
+    User {
+        active: true,
+        username,
+        email,
+        sign_in_count: 1,
+    }
+}
 fn main() {
     let user = User {
         username: String::from("someusername123"),
@@ -31,4 +39,11 @@ fn main() {
 
     let user_json = serde_json::to_string_pretty(&user1).expect("serialize user to json");
     println!("{user_json}");
+
+    print_line_separator();
+
+    let user2 = build_user(String::from("someone@example.com"), String::from("someusername123"));
+    let user_json = serde_json::to_string_pretty(&user2).expect("serialize user to json");
+    println!("{user_json}");
+
 }
