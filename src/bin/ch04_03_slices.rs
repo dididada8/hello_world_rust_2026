@@ -1,16 +1,35 @@
 use helloworld::print_line_separator;
 
-fn first_word(s: &str) -> usize {
-    let bytes = s.as_bytes();
-    for (i, &item) in bytes.iter().enumerate() {
-        if item == b' ' {
-            return i;
-        }
-    }
-    s.len()
-}
-
 fn demo_1() {
+    /*
+    `first_word` 是「函数变量」：变量里放的是一段可调用逻辑。
+    左边类型 `fn(&str) -> usize` 的意思是：
+    1) 接收一个 `&str`
+    2) 返回一个 `usize`
+
+    右边使用的是闭包语法：`|s: &str| { ... }`
+    `|...|` 在 Rust 中专门用于声明闭包参数，作用类似函数定义里的 `( ... )`。
+    对比：
+    - 普通函数: `fn f(s: &str) -> usize { ... }`
+    - 闭包写法: `|s: &str| -> usize { ... }`（返回类型通常可省略）
+
+    为什么这里可以赋给 `fn` 类型？
+    因为这个闭包没有捕获外部变量（non-capturing closure），
+    Rust 可以把它自动转换为函数指针 `fn(&str) -> usize`。
+    */
+    let first_word: fn(&str) -> usize = |s: &str| {
+        // 先转成字节数组，方便按索引逐个检查字符。
+        let bytes = s.as_bytes();
+        // 找到第一个空格就返回它的位置索引。
+        for (i, &item) in bytes.iter().enumerate() {
+            if item == b' ' {
+                return i;
+            }
+        }
+        // 如果没有空格，整个字符串都是第一个单词，返回总长度。
+        s.len()
+    };
+
     let mut s = String::from("hello world");
 
     let word = first_word(&s); // word 将得到值 5
