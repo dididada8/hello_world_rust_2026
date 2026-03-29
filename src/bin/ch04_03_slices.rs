@@ -64,6 +64,7 @@ fn demo_1() {
         println!("slice1 != slice2 . {}!={}", slice1, slice2);
     }
 }
+
 fn first_word(s: &str) -> &str {
     let bytes = s.as_bytes();
     for (i, &item) in bytes.iter().enumerate() {
@@ -76,7 +77,6 @@ fn first_word(s: &str) -> &str {
 }
 
 fn demo_2() {
-
     let my_string = String::from("hello world");
 
     // `first_word` 适用于 `String` 的切片，无论是部分还是全部。
@@ -97,9 +97,28 @@ fn demo_2() {
     let word = first_word(my_string_literal);
     println!("The first word is: {}", word);
 }
+
+fn demo_3() {
+    let first_word: for<'a> fn(&'a str) -> &str = |s: &str| {
+        let bytes = s.as_bytes();
+        for (i, &item) in bytes.iter().enumerate() {
+            if item == b' ' {
+                return &s[0..i];
+            }
+        }
+        &s[..]
+    };
+    let s = String::from("hello world");
+    let word = first_word(&s);
+    println!("The first word is: {}", word);
+}
+
 fn main() {
     demo_1();
     print_line_separator();
     println!();
     demo_2();
+    print_line_separator();
+    println!();
+    demo_3();
 }
