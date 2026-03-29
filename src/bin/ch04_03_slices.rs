@@ -1,3 +1,5 @@
+use helloworld::print_line_separator;
+
 fn first_word(s: &str) -> usize {
     let bytes = s.as_bytes();
     for (i, &item) in bytes.iter().enumerate() {
@@ -9,6 +11,7 @@ fn first_word(s: &str) -> usize {
 }
 
 fn main() {
+     
     let mut s = String::from("hello world");
 
     let word = first_word(&s); // word 将得到值 5
@@ -19,7 +22,7 @@ fn main() {
     // 所以 word 现在完全无效了！
     println!("The first word  is: {word}");
 
-    println!();
+    print_line_separator();
 
     if s.is_empty() {
         s.push_str("hello world");
@@ -28,4 +31,6 @@ fn main() {
     let hello = &s[0..5];
     let world = &s[6..11];
     println!("The first word is: {hello}, the second word is: {world}");
+
+    print_line_separator();
 }

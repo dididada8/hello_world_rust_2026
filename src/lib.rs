@@ -13,6 +13,10 @@ pub fn print_type_of<T>(_: &T, prefix: Option<&str>) {
     }
 }
 
+pub fn print_line_separator() {
+    println!("{}\n","-".repeat(60));
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
