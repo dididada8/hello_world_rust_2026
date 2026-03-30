@@ -85,8 +85,35 @@ fn demo_2(){
     println!("five: {:?}, six: {:?}, none: {:?}", five, six, none);
 }
 
+fn demo_3(){
+    let dice_roll = 9;
+    match dice_roll {
+        3 => add_fancy_hat(),
+        7 => remove_fancy_hat(),
+        // `_` 是通配符模式（wildcard pattern），表示“匹配所有前面分支没匹配到的值”。
+        // 这里等价于“除了 3 和 7 以外的任何点数都执行 reroll()”。
+        // 它不会把值绑定到变量，因此不能在分支体里再读取具体点数；好处是可明确表达“其余情况忽略具体值”。
+        // 在 `match` 里常用 `_` 做兜底分支，保证模式匹配是穷尽的（exhaustive）。
+        _ => reroll(),
+    }
+
+    fn add_fancy_hat() {
+        println!("Adding a fancy hat!");
+    }
+    fn remove_fancy_hat() {
+        println!("Removing the fancy hat!");
+    }
+    fn reroll() {
+        println!("Rerolling the dice!");
+    }
+
+
+}
+
 fn main() {
     demo_1();
     print_line_separator();
     demo_2();
+    print_line_separator();
+    demo_3();
 }
