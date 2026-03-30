@@ -42,6 +42,15 @@ fn demo_2() {
         _ => count += 1,
     }
     println!("There are {} coins remaining.", count);
+
+    let coin = Coin::Quarter(UsState::Alabama);
+    let mut count = 0;
+    if let Coin::Quarter(state) = coin {
+        println!("State quarter from {state:?}!");
+    } else {
+        count += 1;
+    }
+    println!("There are {} coins remaining.", count);
 }
 
 fn main() {
