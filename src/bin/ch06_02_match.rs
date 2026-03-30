@@ -1,8 +1,10 @@
-use strum::IntoEnumIterator;
+use strum::IntoEnumIterator; // 提供 `Coin::iter()` 这个关联函数（来自 trait 扩展）
 use strum_macros::EnumIter;
+use helloworld::print_line_separator;
+// 派生宏：为 enum 生成“遍历所有变体”的实现代码
 
 fn demo_1() {
-    #[derive(Copy, Clone, EnumIter)]
+    #[derive(Copy, Clone, EnumIter)] // 加新变体后无需改遍历函数，`Coin::iter()` 会自动包含新变体
     enum Coin {
         Penny,
         Nickel,
@@ -59,11 +61,32 @@ fn demo_1() {
     let nickel = Coin::Nickel;
     println!("nickel.value_in_cents() = {}", nickel.value_in_cents());
     println!();
+    // 自动迭代：这里不是手写数组，而是使用 `EnumIter` 生成的迭代器按声明顺序产出每个变体。
+    // 因此当你在 `Coin` 中新增变体时，这个循环会自动遍历到，不需要再维护 `iter_coins()`。
     for coin in Coin::iter() {
         println!("iter coin value_in_cents() = {}", coin.value_in_cents());
     }
 }
+fn demo_2(){
+    fn plus_one(x: Option<i32>) -> Option<i32> {
+        match x {
+            None => None,
+            Some(i) => Some(i + 1),
+        }
+    }
+
+    let five = Some(5);
+    let six = plus_one(five);
+    let none = plus_one(None);
+
+    // `{:?}` 是 Debug 格式化占位符：要求对应参数实现 `std::fmt::Debug`。
+    // `Option<i32>` 已实现 Debug，所以会打印成 `Some(5)`、`Some(6)`、`None` 这种开发者可读形式。
+    // 对比 `{}`（Display）：`{}` 面向用户展示，很多类型（如 `Option<i32>`）默认并不实现 Display。
+    println!("five: {:?}, six: {:?}, none: {:?}", five, six, none);
+}
 
 fn main() {
     demo_1();
+    print_line_separator();
+    demo_2();
 }
