@@ -1,4 +1,4 @@
-fn demo_1(){
+fn demo_1() {
     let config_max = Some(3u8);
     match config_max {
         Some(max) => println!("The maximum is configured to be {max}"),
@@ -7,8 +7,14 @@ fn demo_1(){
         // `()` 是单元值（unit），表示“什么都不做”；因此这个分支仅用于占位兜底。
         _ => (),
     }
+
+    println!();
+    let config_max = Some(225u8);
+    if let Some(max) = config_max {
+        println!("The maximum is configured to be {max}");
+    }
 }
 
-fn main(){
+fn main() {
     demo_1();
 }
