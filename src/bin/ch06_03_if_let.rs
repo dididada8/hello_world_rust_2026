@@ -1,3 +1,5 @@
+use helloworld::print_line_separator;
+
 fn demo_1() {
     let config_max = Some(3u8);
     match config_max {
@@ -10,11 +12,40 @@ fn demo_1() {
 
     println!();
     let config_max = Some(225u8);
+    //将 if let 视为 match 的语法糖，它在值匹配一个模式时运行代码，然后忽略所有其他值。
     if let Some(max) = config_max {
         println!("The maximum is configured to be {max}");
     }
 }
 
+fn demo_2() {
+    #[derive(Debug)]
+    #[allow(dead_code)]
+    enum UsState {
+        Alabama,
+        Alaska,
+        // --snip--
+    }
+
+    #[allow(dead_code)]
+    enum Coin {
+        Penny,
+        Nickel,
+        Dime,
+        Quarter(UsState),
+    }
+
+    let coin = Coin::Penny;
+    let mut count = 0;
+    match coin {
+        Coin::Quarter(state) => println!("State quarter from {state:?}!"),
+        _ => count += 1,
+    }
+    println!("There are {} coins remaining.", count);
+}
+
 fn main() {
     demo_1();
+    print_line_separator();
+    demo_2();
 }
