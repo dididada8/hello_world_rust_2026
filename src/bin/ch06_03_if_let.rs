@@ -28,6 +28,7 @@ fn demo_2() {
     }
 
     #[allow(dead_code)]
+    #[derive(Debug)]
     enum Coin {
         Penny,
         Nickel,
@@ -53,8 +54,75 @@ fn demo_2() {
     println!("There are {} coins remaining.", count);
 }
 
+fn demo_3() {
+    #[derive(Debug, Copy, Clone)] // 这样我们可以在一会儿检查状态
+    enum UsState {
+        Alabama,
+        Alaska,
+        // --snip--
+    }
+    impl UsState {
+        fn existed_in(&self, year: u16) -> bool {
+            match self {
+                UsState::Alabama => year >= 1819,
+                UsState::Alaska => year >= 1959,
+                // -- snip --
+            }
+        }
+    }
+
+    #[derive(Debug, Copy, Clone)]
+    enum Coin {
+        Penny,
+        Nickel,
+        Dime,
+        Quarter(UsState),
+    }
+
+    fn describe_state_quarter(coin: Coin) -> Option<String> {
+        if let Coin::Quarter(state) = coin {
+            if state.existed_in(1900) {
+                Some(format!("{state:?} is pretty old, for America!"))
+            } else {
+                Some(format!("{state:?} is relatively new."))
+            }
+        } else {
+            None
+        }
+    }
+
+    // `if let PATTERN = EXPR { ... }` 是“只关心一个匹配分支”的简写语法。
+    // 这里的 `PATTERN` 是 `Some(desc)`，表示只有当右侧表达式结果是 `Option::Some(...)` 时才进入代码块。
+    // `desc` 是模式绑定变量：会把 `Some` 里面的字符串解包并绑定到 `desc`，作用域仅在 `{ ... }` 内。
+    // 若结果是 `None`，条件不成立，整个 `if let` 直接跳过（可选地再写 `else` 处理其他情况）。
+    // 右侧 `describe_state_quarter(Coin::Quarter(UsState::Alaska))` 会先构造参数再调用函数：
+    // `Coin::Quarter(UsState::Alaska)` 是“带关联数据的枚举变体构造”，把州信息装进 `Coin::Quarter`。
+    if let Some(desc) = describe_state_quarter(Coin::Quarter(UsState::Alaska)) {
+        println!("{desc}");
+    }
+
+    println!();
+
+    let all_coins = [
+        Coin::Penny,
+        Coin::Nickel,
+        Coin::Dime,
+        Coin::Quarter(UsState::Alabama),
+        Coin::Quarter(UsState::Alaska),
+    ];
+    for coin in all_coins {
+        if let Some(desc) = describe_state_quarter(coin) {
+            println!("{desc}");
+        } else {
+            println!("NONE {coin:?}");
+        }
+    }
+}
+
 fn main() {
     demo_1();
     print_line_separator();
     demo_2();
+    print_line_separator();
+    demo_3();
 }
