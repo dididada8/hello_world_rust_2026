@@ -1,5 +1,8 @@
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
+
 fn demo_1() {
-    #[derive(Copy, Clone)]
+    #[derive(Copy, Clone, EnumIter)]
     enum Coin {
         Penny,
         Nickel,
@@ -27,6 +30,7 @@ fn demo_1() {
             }
         }
     }
+
     impl Coin {
         fn value_in_cents(&self) -> u8 {
             // `self` 的类型是 `&Coin`（不可变借用），`*self` 是解引用，把 `&Coin` 取成 `Coin`。
@@ -42,18 +46,22 @@ fn demo_1() {
     );
     let penny = Coin::Penny;
     println!("penny.value_in_cents() = {}", penny.value_in_cents());
-    println!();
+
     let coin = Coin::Dime;
     println!("coin.value_in_cents() = {}", coin.value_in_cents());
-    println!();
+
     let three_quarters = Coin::Quarter;
     println!(
         "three_quarters.value_in_cents() = {}",
         three_quarters.value_in_cents()
     );
-    println!();
+
     let nickel = Coin::Nickel;
     println!("nickel.value_in_cents() = {}", nickel.value_in_cents());
+    println!();
+    for coin in Coin::iter() {
+        println!("iter coin value_in_cents() = {}", coin.value_in_cents());
+    }
 }
 
 fn main() {
