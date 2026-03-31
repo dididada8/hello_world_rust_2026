@@ -76,21 +76,30 @@ fn first_word(s: &str) -> &str {
     &s[..]
 }
 
+
 fn demo_2() {
     let my_string = String::from("hello world");
 
     // `first_word` 适用于 `String` 的切片，无论是部分还是全部。
     let word = first_word(&my_string[0..6]);
+    println!(" first_word(&my_string[0..6]) is: {}", word);
+    println!();
     let word = first_word(&my_string[..]);
+    println!(" first_word(&my_string[..]) is: {}", word);
+    println!();
     // `first_word` 也适用于对 `String` 的引用，这等价于
     // `String` 的全部切片。
     let word = first_word(&my_string);
+    println!(" first_word(&my_string) is: {}", word);
+    println!();
 
     let my_string_literal = "hello world";
 
     // `first_word` 适用于字符串字面量的切片，无论是部分还是全部。
     let word = first_word(&my_string_literal[0..6]);
+    println!("切片0～6 The first word is: {}", word);
     let word = first_word(&my_string_literal[..]);
+    println!("切片 The first word is: {}", word);
 
     // 因为字符串字面量*就是*字符串切片，
     // 这也适用，不需要切片语法！
