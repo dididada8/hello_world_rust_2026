@@ -4,8 +4,11 @@ mod back_of_house;
 pub use crate::front_of_house::hosting;
 use crate::front_of_house::hosting::add_to_waitlist;
 
-fn deliver_order() {}
+pub fn deliver_order() {
+    println!("Delivering order...");
+}
 
+#[allow(unused_variables)]
 pub fn eat_at_restaurant() {
     // 绝对路径
     crate::front_of_house::hosting::add_to_waitlist();
