@@ -1,6 +1,7 @@
 [workspace]
 members = [
-    "backyard"
+    "crates/backyard",
+    "crates/restaurant"
 ]
 
 [package]
