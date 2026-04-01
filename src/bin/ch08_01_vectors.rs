@@ -1,3 +1,5 @@
+use std::panic;
+
 fn main() {
     let v = vec![1, 2, 3, 4, 5];
 
@@ -16,5 +18,23 @@ fn main() {
     for element in &v {
         count += 1;
         println!("第 {count} 个元素是 {element}");
+    }
+
+    // 使用 catch_unwind 捕获 panic
+    let result = panic::catch_unwind(|| {
+        let does_not_exist = &v[100]; //引发 panic
+        println!("第100个元素是: {}", does_not_exist);
+    });
+
+    match result {
+        Ok(_) => println!("成功访问元素"),
+        Err(_) => println!("捕获到 panic: 索引越界，第100个元素不存在"),
+    }
+
+    println!("程序继续运行...");
+    let does_not_exist = v.get(100);
+    match does_not_exist {
+        Some(value) => println!("第100个元素是: {}", value),
+        None => println!("第100个元素不存在,使用 get 方法安全访问,不会引发 panic"),
     }
 }
