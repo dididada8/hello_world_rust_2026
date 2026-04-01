@@ -22,5 +22,13 @@ fn main() {
     s.push_str(", but now also");
     print_type_of(&s, Some("s"));
 
+    let mut s1 = String::from("foo");
+    let s2 = "bar";
+    // push_str 接受 &str 参数，只是借用 s2，不会获取所有权
+    // 因为 push_str 的签名是：fn push_str(&mut self, string: &str)
+    // 参数是 &str（借用），所以 s2 在调用后仍然有效
+    s1.push_str(s2);
+    println!("s2 is {s2}");
+    print_type_of(&s1, Some("s1"));
 
 }
