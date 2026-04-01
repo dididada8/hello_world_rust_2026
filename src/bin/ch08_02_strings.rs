@@ -31,4 +31,8 @@ fn main() {
     println!("s2 is {s2}");
     print_type_of(&s1, Some("s1"));
 
+    let mut s = String::from("lo");
+    s.push('l');
+    print_type_of(&s, Some(&format!("s:{}", s)));
+
 }
