@@ -22,8 +22,8 @@ fn main() {
 
     // 使用 catch_unwind 捕获 panic
     let result = panic::catch_unwind(|| {
-        let does_not_exist = &v[100]; //引发 panic
-        println!("第100个元素是: {}", does_not_exist);
+        //let does_not_exist = &v[100]; //引发 panic
+        //println!("第100个元素是: {}", does_not_exist);
     });
 
     match result {
@@ -37,4 +37,35 @@ fn main() {
         Some(value) => println!("第100个元素是: {}", value),
         None => println!("第100个元素不存在,使用 get 方法安全访问,不会引发 panic"),
     }
+
+    println!();
+    let mut v = vec![100, 32, 57];
+    for i in &mut v {
+        *i += 50;
+    }
+    println!("{:?}", v);
+
+
+
+    enum SpreadsheetCell {
+        Int(i32),
+        Float(f64),
+        Text(String),
+    }
+
+    let row = vec![
+        SpreadsheetCell::Int(3),
+        SpreadsheetCell::Text(String::from("blue")),
+        SpreadsheetCell::Float(10.12),
+    ];
+
+    // 这样才算"读取"字段
+   for cell in &row {
+       match cell {
+           SpreadsheetCell::Int(value) => println!("Int值是: {}", value),
+           SpreadsheetCell::Float(value) => println!("Float值是: {}", value),
+           SpreadsheetCell::Text(value) => println!("String 值是: {}", value),
+       }
+   }
+
 }
