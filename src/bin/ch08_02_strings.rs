@@ -31,8 +31,26 @@ fn main() {
     println!("s2 is {s2}");
     print_type_of(&s1, Some("s1"));
 
+    println!();
+
     let mut s = String::from("lo");
     s.push('l');
     print_type_of(&s, Some(&format!("s:{}", s)));
+
+    let s1 = String::from("Hello, ");
+    let s2 = String::from("world!");
+    let s3 = s1 + &s2; // 注意 s1 已被移动到这里，不能再使用
+    println!("s2 is {s2}, s3 is {s3}");
+    println!();
+
+    let s1 = String::from("tic");
+    let s2 = String::from("tac");
+    let s3 = String::from("toe");
+
+    print_type_of(&s1, Some("s1"));
+    let s = s1 + "-" + &s2 + "-" + &s3;
+    println!("s is {s}");
+    println!();
+
 
 }
