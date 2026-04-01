@@ -2,8 +2,9 @@ use helloworld::print_type_of;
 
 fn main() {
     // data 是 &str 类型（字符串切片）
-    // &str 是对字符串数据的引用，存储在程序的二进制文件中（静态内存）
-    // 字符串字面量就是 &str 类型
+    // &str 是对字符串数据的引用/借用，没有所有权
+    // 字符串字面量存储在程序的二进制文件中（静态内存）
+    // &str 不可变且固定大小
     let data = "initial contents";
     print_type_of(&data, Some("data"));
 
@@ -20,4 +21,6 @@ fn main() {
     let mut s = String::from(data);
     s.push_str(", but now also");
     print_type_of(&s, Some("s"));
+
+
 }
