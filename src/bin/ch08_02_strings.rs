@@ -52,5 +52,32 @@ fn main() {
     println!("s is {s}");
     println!();
 
+    let hellos = [
+        String::from("السلام عليكم"),
+        String::from("Dobrý den"),
+        String::from("Hello"),
+        String::from("שלום"),
+        String::from("नमस्ते"),
+        String::from("こんにちは"),
+        String::from("안녕하세요"),
+        String::from("你好"),
+        String::from("Olá"),
+        String::from("Здравствуйте"),
+        String::from("Hola"),
+    ];
+    print_type_of(&hellos, Some("hellos"));
+    let hello_vec = hellos.iter().map(|s| s.as_str()).collect::<Vec<&str>>();
+    print_type_of(&hello_vec, Some("hello_vec"));
 
+    let mut hello_vec: Vec<String> = Vec::new();
+    for s in hellos.iter().cloned() { // 方法3：先借用iter()，再复制cloned()，不改变所有权
+        hello_vec.push(s);
+    }
+
+    for s in &hellos {
+        hello_vec.push(s.clone());
+    }
+    print_type_of(&hello_vec, Some(&format!("hello_vec with cloned: {} count ! ", hello_vec.len().to_string())));
+    let hello_vec = Vec::from(hellos);
+    print_type_of(&hello_vec, Some("hello_vec"));
 }
