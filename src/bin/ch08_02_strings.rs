@@ -70,10 +70,11 @@ fn main() {
     print_type_of(&hello_vec, Some("hello_vec"));
 
     let mut hello_vec: Vec<String> = Vec::new();
-    for s in hellos.iter().cloned() { // 方法3：先借用iter()，再复制cloned()，不改变所有权
+    for s in hellos.iter().cloned() { // 方法：先借用iter()，再复制cloned()，不改变所有权
         hello_vec.push(s);
     }
 
+    // 方法：使用 &hellos 借用，s 类型是 &String，调用 clone() 复制，不改变所有权
     for s in &hellos {
         hello_vec.push(s.clone());
     }
