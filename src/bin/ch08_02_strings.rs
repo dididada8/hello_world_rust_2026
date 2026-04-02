@@ -1,4 +1,4 @@
-use helloworld::print_type_of;
+use helloworld::{print_line_separator, print_type_of};
 use unicode_segmentation::UnicodeSegmentation;
 
 fn main() {
@@ -95,6 +95,9 @@ fn main() {
     s1.push_str(s2); // push_str 签名：fn push_str(&mut self, string: &str)，只借用 s2，不改变所有权
     println!("s2 is {s2}");
 
+    // UTF-8编码特性：不同字符占用不同字节数
+    // ASCII字符1字节，西里尔/希腊字母2字节，中日韩文3字节，emoji等4字节
+    // 字符串切片[start..end]按字节索引，必须在字符边界上，否则panic
     let hello = String::from("Здравствуйте");
     println!(
         "hello is {hello},len {},count {}",
@@ -117,6 +120,7 @@ fn main() {
         hello_cn.chars().count()
     );
     // 中文汉字每个占3字节，[0..3]取3字节=1个字符"张"
+    // 安全替代方案：使用 chars().take(n).collect() 或 get(start..end) 返回Option
     println!("{}", &hello_cn[0..3]);
 
     let first_char: String = hello_cn.chars().take(1).collect(); // "张"
@@ -134,4 +138,17 @@ fn main() {
 
     let graphemes: Vec<&str> = hello_cn.graphemes(true).collect();
     println!("{}", graphemes[2]); // "是"，graphemes[2] 是第3个字符"是"
+
+    print_line_separator();
+
+    for c in "Зд".chars() {
+        println!("{c}");
+    }
+
+    for b in "Зд".bytes() {
+        println!("{b}");
+    }
+
+    println!("Зд contains д: {}", "Зд".contains('д'));
+    println!("张三 contains 三: {}", "张三".contains("三"));
 }
