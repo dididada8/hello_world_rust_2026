@@ -34,5 +34,16 @@ fn main() {
         println!("Score for {}: {}", team_name, value);
     }
 
+    print_line_separator();
+
+    let field_name = String::from("Favorite color");
+    let field_value = String::from("Blue");
+
+    let mut map = HashMap::new();
+    map.insert(field_name, field_value);
+    // field_name 和 field_value 在此处无效，尝试使用它们看看会得到什么编译器错误！
+    println!("{:#?}", map);
+
+
 
 }
