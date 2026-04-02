@@ -105,6 +105,11 @@ fn main() {
     println!("{}", &hello[0..4]);
     println!();
 
+    /*
+       按字符处理用 .chars()
+       需要切片用 .get() 返回 Option
+       避免直接用 [start..end] 硬切片
+    */
     let hello_cn = String::from("张三是一个中国人的名字，你知道吗？");
     println!(
         "hello is {hello_cn},len {},count {}",
@@ -114,21 +119,19 @@ fn main() {
     // 中文汉字每个占3字节，[0..3]取3字节=1个字符"张"
     println!("{}", &hello_cn[0..3]);
 
-    let first_char: String = hello_cn.chars().take(1).collect();  // "张"
-    let first_two: String = hello_cn.chars().take(2).collect();   // "张三"
+    let first_char: String = hello_cn.chars().take(1).collect(); // "张"
+    let first_two: String = hello_cn.chars().take(2).collect(); // "张三"
     println!("first_char is {first_char},first_two is {first_two}");
 
     if let Some((idx, _)) = hello_cn.char_indices().nth(1) {
-        println!("{}", &hello_cn[..idx]);  // "张"，idx=3 是安全边界
+        println!("{}", &hello_cn[..idx]); // "张"，idx=3 是安全边界
     }
 
-
     match hello_cn.get(0..3) {
-        Some(slice) => println!("{}", slice),  // "张"
-        None => println!("Invalid byte index")
+        Some(slice) => println!("{}", slice), // "张"
+        None => println!("Invalid byte index"),
     }
 
     let graphemes: Vec<&str> = hello_cn.graphemes(true).collect();
     println!("{}", graphemes[2]); // "是"，graphemes[2] 是第3个字符"是"
-
 }
