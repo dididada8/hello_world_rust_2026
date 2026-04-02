@@ -81,4 +81,9 @@ fn main() {
     print_type_of(&hello_vec, Some(&format!("hello_vec with cloned: {} count ! ", hello_vec.len().to_string())));
     let hello_vec = Vec::from(hellos);
     print_type_of(&hello_vec, Some("hello_vec"));
+
+    let mut s1 = String::from("foo");
+    let s2 = "bar";
+    s1.push_str(s2);// push_str 签名：fn push_str(&mut self, string: &str)，只借用 s2，不改变所有权
+    println!("s2 is {s2}");
 }
