@@ -1,4 +1,5 @@
 use helloworld::print_type_of;
+use unicode_segmentation::UnicodeSegmentation;
 
 fn main() {
     // data 是 &str 类型（字符串切片）
@@ -102,13 +103,32 @@ fn main() {
     );
     // 西里尔字母每个占2字节，[0..4]取4字节=2个字符"Зд"
     println!("{}", &hello[0..4]);
+    println!();
 
-    let hello = String::from("张三是一个中国人的名字，你知道吗？");
+    let hello_cn = String::from("张三是一个中国人的名字，你知道吗？");
     println!(
-        "hello is {hello},len {},count {}",
-        hello.len(),
-        hello.chars().count()
+        "hello is {hello_cn},len {},count {}",
+        hello_cn.len(),
+        hello_cn.chars().count()
     );
     // 中文汉字每个占3字节，[0..3]取3字节=1个字符"张"
-    println!("{}", &hello[0..3]);
+    println!("{}", &hello_cn[0..3]);
+
+    let first_char: String = hello_cn.chars().take(1).collect();  // "张"
+    let first_two: String = hello_cn.chars().take(2).collect();   // "张三"
+    println!("first_char is {first_char},first_two is {first_two}");
+
+    if let Some((idx, _)) = hello_cn.char_indices().nth(1) {
+        println!("{}", &hello_cn[..idx]);  // "张"，idx=3 是安全边界
+    }
+
+
+    match hello_cn.get(0..3) {
+        Some(slice) => println!("{}", slice),  // "张"
+        None => println!("Invalid byte index")
+    }
+
+    let graphemes: Vec<&str> = hello_cn.graphemes(true).collect();
+    println!("{}", graphemes[2]); // "是"，graphemes[2] 是第3个字符"是"
+
 }
