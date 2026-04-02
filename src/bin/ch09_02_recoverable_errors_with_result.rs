@@ -1,3 +1,4 @@
+use helloworld::print_line_separator;
 use std::fs::File;
 use std::io::ErrorKind;
 
@@ -17,5 +18,21 @@ fn main() {
             }
         },
     };
+    println!("{greeting_file:?}");
+    print_line_separator();
+
+    // 闭包语法：|参数| { 闭包体 }，类似匿名函数
+    // unwrap_or_else 接受一个闭包，当 Result 是 Err 时执行
+    // |error| 是闭包参数，error 类型由编译器自动推断为 io::Error
+    let greeting_file = File::open("hello.txt").unwrap_or_else(|error| {
+        if error.kind() == ErrorKind::NotFound {
+            // 嵌套闭包：内层闭包处理文件创建失败的情况
+            File::create("hello.txt").unwrap_or_else(|error| {
+                panic!("Problem creating the file: {error:?}");
+            })
+        } else {
+            panic!("Problem opening the file: {error:?}");
+        }
+    });
     println!("{greeting_file:?}");
 }
