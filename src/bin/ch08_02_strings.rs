@@ -70,7 +70,8 @@ fn main() {
     print_type_of(&hello_vec, Some("hello_vec"));
 
     let mut hello_vec: Vec<String> = Vec::new();
-    for s in hellos.iter().cloned() { // 方法：先借用iter()，再复制cloned()，不改变所有权
+    for s in hellos.iter().cloned() {
+        // 方法：先借用iter()，再复制cloned()，不改变所有权
         hello_vec.push(s);
     }
 
@@ -78,12 +79,36 @@ fn main() {
     for s in &hellos {
         hello_vec.push(s.clone());
     }
-    print_type_of(&hello_vec, Some(&format!("hello_vec with cloned: {} count ! ", hello_vec.len().to_string())));
+    print_type_of(
+        &hello_vec,
+        Some(&format!(
+            "hello_vec with cloned: {} count ! ",
+            hello_vec.len().to_string()
+        )),
+    );
     let hello_vec = Vec::from(hellos);
     print_type_of(&hello_vec, Some("hello_vec"));
 
     let mut s1 = String::from("foo");
     let s2 = "bar";
-    s1.push_str(s2);// push_str 签名：fn push_str(&mut self, string: &str)，只借用 s2，不改变所有权
+    s1.push_str(s2); // push_str 签名：fn push_str(&mut self, string: &str)，只借用 s2，不改变所有权
     println!("s2 is {s2}");
+
+    let hello = String::from("Здравствуйте");
+    println!(
+        "hello is {hello},len {},count {}",
+        hello.len(),
+        hello.chars().count()
+    );
+    // 西里尔字母每个占2字节，[0..4]取4字节=2个字符"Зд"
+    println!("{}", &hello[0..4]);
+
+    let hello = String::from("张三是一个中国人的名字，你知道吗？");
+    println!(
+        "hello is {hello},len {},count {}",
+        hello.len(),
+        hello.chars().count()
+    );
+    // 中文汉字每个占3字节，[0..3]取3字节=1个字符"张"
+    println!("{}", &hello[0..3]);
 }
