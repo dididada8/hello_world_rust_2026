@@ -46,7 +46,6 @@ fn main() {
 
     print_line_separator();
 
-
     let mut scores = HashMap::new();
     scores.insert(String::from("Blue"), 10);
 
@@ -54,4 +53,19 @@ fn main() {
     scores.entry(String::from("Blue")).or_insert(50);
 
     println!("{scores:?}");
+
+    print_line_separator();
+
+    let text = "hello world wonderful world";
+    let mut map = HashMap::new();
+    for word in text.split_whitespace() {
+        let count = map.entry(word).or_insert(0);
+        *count += 1;
+    }
+
+    for (_, count) in &mut map { // 迭代 map 的可变引用，修改值
+        *count += 1;
+    }
+
+    println!("{map:?}");
 }
