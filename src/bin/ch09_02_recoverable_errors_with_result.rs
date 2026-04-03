@@ -54,32 +54,69 @@ fn demo_1() {
     println!("{greeting_file:?}");
 }
 
+// 错误传播模式：使用 match 手动传播错误
+// 这是 ? 运算符出现之前的传统写法，代码冗长但逻辑清晰
 fn demo_2() {
     fn read_username_from_file() -> Result<String, io::Error> {
+        // 第一步：尝试打开文件
         let username_file_result = File::open("hello2.txt");
 
+        // 使用 match 处理打开文件的结果
         let mut username_file = match username_file_result {
-            Ok(file) => file,
-            Err(e) => return Err(e),
+            Ok(file) => file,  // 成功：解包得到文件句柄
+            Err(e) => return Err(e),  // 失败：提前返回错误，将错误向上传播
         };
 
         let mut username = String::new();
 
+        // 第二步：尝试读取文件内容到字符串
         match username_file.read_to_string(&mut username) {
-            Ok(_) => {
+            Ok(_) => {  // 成功：Ok 包含读取的字节数，这里用 _ 忽略
                 println!("inner fn -> {username:?}");
-                Ok(username)
+                Ok(username)  // 返回成功结果，包含读取的用户名
             }
-            Err(e) => Err(e),
+            Err(e) => Err(e),  // 失败：返回错误，将错误向上传播
         }
     }
     let username = read_username_from_file().expect("Unable to get username");
     println!("{username:?}");
 }
 
+// ? 运算符：错误传播的简写语法
+// 作用：如果 Result 是 Err，则提前返回该 Err；如果是 Ok(value)，则解包得到 value
+// 语法：expression? 等价于 match expression { Ok(val) => val, Err(e) => return Err(e) }
+// 要求：只能用在返回 Result 或 Option 类型的函数中
+// 优势：简化错误处理代码，避免大量嵌套 match
+fn demo_3() {
+    fn read_username_from_file() -> Result<String, io::Error> {
+        // File::open("hello2.txt")?
+        // - 如果成功，解包 Ok(file) 得到 file，赋值给 username_file
+        // - 如果失败，立即 return Err(e)，后续代码不执行
+        let mut username_file = File::open("hello2.txt")?;
+        let mut username = String::new();
+        // read_to_string(&mut username)?
+        // - 如果成功，返回读取的字节数（被忽略）
+        // - 如果失败，立即 return Err(e)
+        username_file.read_to_string(&mut username)?;
+        Ok(username)
+    }
+    let username = read_username_from_file().expect("Unable to get username");
+    println!("{username:?}");
+}
+
 fn main() {
+    println!("=== demo_1 ===");
     demo_1();
+
     print_line_separator();
     println!();
+
+/*    println!("=== demo_2 ===");
     demo_2();
+
+    print_line_separator();
+    println!();*/
+
+    println!("=== demo_3 ===");
+    demo_3();
 }
