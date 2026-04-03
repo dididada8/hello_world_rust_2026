@@ -35,4 +35,12 @@ fn main() {
         }
     });
     println!("{greeting_file:?}");
+
+    print_line_separator();
+
+    let greeting_file =
+        File::open("hello1.txt").expect("hello.txt should be included in this project");
+    println!("{greeting_file:?}");
+
+    print_line_separator();
 }
