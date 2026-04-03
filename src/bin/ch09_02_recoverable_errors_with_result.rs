@@ -167,7 +167,7 @@ fn demo_5() {
     fn read_username_from_file() -> Result<String, io::Error> {
         // 一行代码完成所有操作：打开文件 + 读取内容 + 返回 Result
         // 完全等价于 demo_3/demo_4 的所有逻辑，但更简洁
-        fs::read_to_string("hello.txt")
+        fs::read_to_string("hello2.txt")
     }
     let username = read_username_from_file().expect("Unable to get username");
     println!("{username:?}");
