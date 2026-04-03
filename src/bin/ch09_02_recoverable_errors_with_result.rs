@@ -2,7 +2,7 @@ use helloworld::print_line_separator;
 use std::fs::File;
 use std::io::ErrorKind;
 
-fn main() {
+fn demo_1() {
     let greeting_file_result = File::open("hello.txt");
     let greeting_file = match greeting_file_result {
         Ok(file) => file,
@@ -18,6 +18,7 @@ fn main() {
             }
         },
     };
+
     println!("{greeting_file:?}");
     print_line_separator();
 
@@ -49,6 +50,12 @@ fn main() {
             None
         }
     };
+    println!("{greeting_file:?}");
+}
 
+fn main() {
+    demo_1();
     print_line_separator();
+
+
 }
