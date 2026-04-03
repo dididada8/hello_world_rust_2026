@@ -1,6 +1,7 @@
 use helloworld::print_line_separator;
 use std::fs::File;
-use std::io::ErrorKind;
+use std::io;
+use std::io::{ErrorKind, Read};
 
 fn demo_1() {
     let greeting_file_result = File::open("hello.txt");
@@ -53,9 +54,32 @@ fn demo_1() {
     println!("{greeting_file:?}");
 }
 
+fn demo_2() {
+    fn read_username_from_file() -> Result<String, io::Error> {
+        let username_file_result = File::open("hello.txt");
+
+        let mut username_file = match username_file_result {
+            Ok(file) => file,
+            Err(e) => return Err(e),
+        };
+
+        let mut username = String::new();
+
+        match username_file.read_to_string(&mut username) {
+            Ok(_) => {
+                println!("inner fn -> {username:?}");
+                Ok(username)
+            }
+            Err(e) => Err(e),
+        }
+    }
+    let username = read_username_from_file().expect("Unable to get username");
+    println!("{username:?}");
+}
+
 fn main() {
     demo_1();
     print_line_separator();
-
-
+    println!();
+    demo_2();
 }
