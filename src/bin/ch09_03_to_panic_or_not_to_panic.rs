@@ -11,6 +11,7 @@ fn demo_1() {
     };
     println!("home: {}", home.is_ipv4());
 }
+
 fn demo_2() {
     let ip_str = "127.0.0.11x";
     let home = ip_str.parse::<IpAddr>().unwrap_or_else(|e| {
@@ -19,8 +20,24 @@ fn demo_2() {
     });
     println!("home: {}", home.is_ipv4());
 }
+
+fn demo_3() {
+    let ip_str = "127.0.0.1x";
+    let result = ip_str.parse::<IpAddr>();
+
+    if let Err(e) = result {
+        eprintln!("解析 IP 地址失败: {}", e);
+        return;
+    }
+    let home = result.unwrap();
+    println!("home: {}", home.is_ipv4());
+}
+
+
 fn main() {
     demo_1();
     println!();
     demo_2();
+    println!();
+    demo_3();
 }
