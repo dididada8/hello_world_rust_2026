@@ -114,6 +114,18 @@ fn demo_3() {
     println!("{username:?}");
 }
 
+fn demo_4() {
+    fn read_username_from_file() -> Result<String, io::Error> {
+        let mut username = String::new();
+
+        File::open("hello2.txt")?.read_to_string(&mut username)?;
+
+        Ok(username)
+    }
+    let username = read_username_from_file().expect("Unable to get username");
+    println!("{username:?}");
+}
+
 fn main() {
     println!("=== demo_1 ===");
     demo_1();
@@ -143,5 +155,14 @@ fn main() {
 
     print_line_separator();
     println!();
-}
 
+    println!("=== demo_4 ===");
+    // 使用 catch_unwind 捕获 panic，让程序可以继续执行
+    // catch_unwind 返回 Result：Ok(返回值) 或 Err(panic 信息)
+    let result = panic::catch_unwind(|| {
+        demo_4();
+    });
+    process_result(result, Some("demo_4"));
+    print_line_separator();
+    println!();
+}
