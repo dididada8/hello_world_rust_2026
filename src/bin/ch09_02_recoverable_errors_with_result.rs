@@ -1,7 +1,8 @@
-use helloworld::print_line_separator;
+use helloworld::{print_line_separator, process_result};
 use std::fs::File;
 use std::io;
 use std::io::{ErrorKind, Read};
+use std::panic;
 
 // 基础错误处理：使用嵌套 match 处理多种错误情况
 // 展示了如何根据错误类型进行不同的处理逻辑
@@ -121,14 +122,26 @@ fn main() {
     println!();
 
     println!("=== demo_2 ===");
-    demo_2();
+    // 使用 catch_unwind 捕获 panic，让程序可以继续执行
+    // catch_unwind 返回 Result：Ok(返回值) 或 Err(panic 信息)
+    let result = panic::catch_unwind(|| {
+        demo_2();
+    });
+
+    process_result(result, Some("demo_2"));
 
     print_line_separator();
     println!();
 
     println!("=== demo_3 ===");
-    demo_3();
+    // 使用 catch_unwind 捕获 panic，让程序可以继续执行
+    // catch_unwind 返回 Result：Ok(返回值) 或 Err(panic 信息)
+    let result = panic::catch_unwind(|| {
+        demo_3();
+    });
+    process_result(result, Some("demo_3"));
 
     print_line_separator();
     println!();
 }
+
