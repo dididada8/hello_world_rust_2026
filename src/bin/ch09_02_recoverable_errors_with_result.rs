@@ -3,18 +3,21 @@ use std::fs::File;
 use std::io;
 use std::io::{ErrorKind, Read};
 
+// 基础错误处理：使用嵌套 match 处理多种错误情况
+// 展示了如何根据错误类型进行不同的处理逻辑
 fn demo_1() {
+    // 示例1：嵌套 match 模式 - 处理不同类型的错误
     let greeting_file_result = File::open("hello.txt");
     let greeting_file = match greeting_file_result {
-        Ok(file) => file,
-        Err(error) => match error.kind() {
+        Ok(file) => file,  // 文件打开成功，直接使用
+        Err(error) => match error.kind() {  // 失败时，进一步匹配错误类型
             // error.kind() 返回 io::ErrorKind 枚举，匹配具体的错误类型
             // 如果文件不存在，尝试创建文件
             ErrorKind::NotFound => match File::create("hello.txt") {
-                Ok(fc) => fc,
-                Err(e) => panic!("Problem creating the file: {e:?}"),
+                Ok(fc) => fc,  // 文件创建成功
+                Err(e) => panic!("Problem creating the file: {e:?}"),  // 创建失败则 panic
             },
-            _ => {
+            _ => {  // 其他类型的错误（如权限不足、磁盘满等）
                 panic!("Problem opening the file: {error:?}");
             }
         },
@@ -23,6 +26,7 @@ fn demo_1() {
     println!("{greeting_file:?}");
     print_line_separator();
 
+    // 示例2：使用闭包简化嵌套 match - 功能与示例1相同，代码更简洁
     // 闭包语法：|参数| { 闭包体 }，类似匿名函数
     // unwrap_or_else 接受一个闭包，当 Result 是 Err 时执行
     // |error| 是闭包参数，error 类型由编译器自动推断为 io::Error
@@ -40,7 +44,9 @@ fn demo_1() {
 
     print_line_separator();
 
+    // 示例3：优雅的错误处理 - 不使用 panic，返回 Option 类型
     // 使用 match 处理错误而不是 panic，这样程序可以继续运行
+    // 成功返回 Some(file)，失败返回 None
     let greeting_file = match File::open("hello1.txt") {
         Ok(file) => {
             println!("{file:?}");
