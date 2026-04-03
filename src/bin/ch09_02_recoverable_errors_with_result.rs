@@ -9,15 +9,17 @@ fn demo_1() {
     // 示例1：嵌套 match 模式 - 处理不同类型的错误
     let greeting_file_result = File::open("hello.txt");
     let greeting_file = match greeting_file_result {
-        Ok(file) => file,  // 文件打开成功，直接使用
-        Err(error) => match error.kind() {  // 失败时，进一步匹配错误类型
+        Ok(file) => file, // 文件打开成功，直接使用
+        Err(error) => match error.kind() {
+            // 失败时，进一步匹配错误类型
             // error.kind() 返回 io::ErrorKind 枚举，匹配具体的错误类型
             // 如果文件不存在，尝试创建文件
             ErrorKind::NotFound => match File::create("hello.txt") {
-                Ok(fc) => fc,  // 文件创建成功
-                Err(e) => panic!("Problem creating the file: {e:?}"),  // 创建失败则 panic
+                Ok(fc) => fc,                                         // 文件创建成功
+                Err(e) => panic!("Problem creating the file: {e:?}"), // 创建失败则 panic
             },
-            _ => {  // 其他类型的错误（如权限不足、磁盘满等）
+            _ => {
+                // 其他类型的错误（如权限不足、磁盘满等）
                 panic!("Problem opening the file: {error:?}");
             }
         },
@@ -69,19 +71,20 @@ fn demo_2() {
 
         // 使用 match 处理打开文件的结果
         let mut username_file = match username_file_result {
-            Ok(file) => file,  // 成功：解包得到文件句柄
-            Err(e) => return Err(e),  // 失败：提前返回错误，将错误向上传播
+            Ok(file) => file,        // 成功：解包得到文件句柄
+            Err(e) => return Err(e), // 失败：提前返回错误，将错误向上传播
         };
 
         let mut username = String::new();
 
         // 第二步：尝试读取文件内容到字符串
         match username_file.read_to_string(&mut username) {
-            Ok(_) => {  // 成功：Ok 包含读取的字节数，这里用 _ 忽略
+            Ok(_) => {
+                // 成功：Ok 包含读取的字节数，这里用 _ 忽略
                 println!("inner fn -> {username:?}");
-                Ok(username)  // 返回成功结果，包含读取的用户名
+                Ok(username) // 返回成功结果，包含读取的用户名
             }
-            Err(e) => Err(e),  // 失败：返回错误，将错误向上传播
+            Err(e) => Err(e), // 失败：返回错误，将错误向上传播
         }
     }
     let username = read_username_from_file().expect("Unable to get username");
@@ -117,12 +120,15 @@ fn main() {
     print_line_separator();
     println!();
 
-/*    println!("=== demo_2 ===");
+    println!("=== demo_2 ===");
     demo_2();
 
     print_line_separator();
-    println!();*/
+    println!();
 
     println!("=== demo_3 ===");
     demo_3();
+
+    print_line_separator();
+    println!();
 }
