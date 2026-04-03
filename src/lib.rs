@@ -22,6 +22,8 @@ pub fn print_line_separator() {
 // catch_unwind 返回 Result<T, Box<dyn Any + Send>>
 // T 是闭包的返回类型，这里是 ()
 // Box<dyn Any + Send> 是 panic 的载荷类型
+// 参数 result：转移所有权（不是借用），调用后 result 不可再使用
+// 参数 prefix：借用 &str，不获取所有权
 pub fn process_result(result: Result<(), Box<dyn std::any::Any + Send>>, prefix: Option<&str>) {
     let formatted_prefix = prefix.map_or(String::new(), |p| format!("{} -> ", p));
 
