@@ -142,7 +142,6 @@ fn demo_4() {
     println!("{username:?}");
 }
 
-
 // 最简洁的写法：使用标准库的便捷函数
 // 对比前面所有 demo：
 // - demo_2: 手动 match 传播错误（冗长）
@@ -171,6 +170,51 @@ fn demo_5() {
     }
     let username = read_username_from_file().expect("Unable to get username");
     println!("{username:?}");
+}
+
+// ? 运算符也可用于 Option 类型
+// 背后执行的逻辑：如果是 None 则提前返回 None，如果是 Some(value) 则解包得到 value
+fn demo_6() {
+    fn last_char_of_first_line(text: &str) -> Option<char> {
+        // 分解 text.lines().next()?.chars().last() 的执行流程：
+        //
+        // 1. text.lines()
+        //    - 返回 Lines 迭代器，按行分割字符串
+        //
+        // 2. .next()
+        //    - 返回 Option<&str>
+        //    - Some("第一行内容") 如果有第一行
+        //    - None 如果字符串为空
+        //
+        // 3. ? 运算符（关键！）
+        //    - 如果 .next() 返回 None，? 会立即 return None，后续代码不执行
+        //    - 如果 .next() 返回 Some(line)，? 解包得到 line: &str
+        //    - 等价于：let line = match text.lines().next() {
+        //                  Some(l) => l,
+        //                  None => return None,
+        //              };
+        //
+        // 4. .chars()
+        //    - 在解包后的 line 上调用
+        //    - 返回 Chars 迭代器，遍历字符
+        //
+        // 5. .last()
+        //    - 返回 Option<char>
+        //    - Some(最后一个字符) 或 None（如果行为空）
+        //
+        // 总结：? 在 Option 上的行为
+        // - Option<T> 上的 ? 会在遇到 None 时提前返回 None
+        // - 这与在 Result<T, E> 上的行为类似，只是针对 Option 类型
+        text.lines().next()?.chars().last()
+    }
+    assert_eq!(
+        last_char_of_first_line("Hello, world\nHow are you today?"),
+        Some('d')
+    );
+
+    assert_eq!(last_char_of_first_line(""), None);
+    assert_eq!(last_char_of_first_line("\nhi"), None);
+    println!("last_char_of_first_line tests passed");
 }
 
 fn main() {
@@ -221,4 +265,7 @@ fn main() {
     process_result(result, Some("demo_5"));
     print_line_separator();
     println!();
+
+    println!("=== demo_6 ===");
+    demo_6();
 }
