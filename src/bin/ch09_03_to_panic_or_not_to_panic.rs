@@ -1,5 +1,5 @@
 use std::cmp::Ordering;
-use std::io;
+use std::{io, process};
 use std::net::IpAddr;
 
 fn demo_1() {
@@ -51,7 +51,12 @@ fn demo_4() {
 
         let guess: i32 = match guess.trim().parse() {
             Ok(num) => num,
-            Err(_) => continue,
+            Err(msg) => {
+                if guess.trim() == "q" {
+                    process::exit(0);
+                }
+                continue;
+            }
         };
 
         if guess < 1 || guess > 100 {
