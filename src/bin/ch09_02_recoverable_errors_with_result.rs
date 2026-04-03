@@ -38,9 +38,17 @@ fn main() {
 
     print_line_separator();
 
-    let greeting_file =
-        File::open("hello1.txt").expect("hello.txt should be included in this project");
-    println!("{greeting_file:?}");
+    // 使用 match 处理错误而不是 panic，这样程序可以继续运行
+    let greeting_file = match File::open("hello1.txt") {
+        Ok(file) => {
+            println!("{file:?}");
+            Some(file)
+        }
+        Err(e) => {
+            println!("File not found: {e}");
+            None
+        }
+    };
 
     print_line_separator();
 }
