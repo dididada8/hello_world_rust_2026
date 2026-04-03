@@ -1,8 +1,8 @@
 use helloworld::{print_line_separator, process_result};
 use std::fs::File;
-use std::io;
 use std::io::{ErrorKind, Read};
 use std::panic;
+use std::{fs, io};
 
 // 基础错误处理：使用嵌套 match 处理多种错误情况
 // 展示了如何根据错误类型进行不同的处理逻辑
@@ -114,13 +114,60 @@ fn demo_3() {
     println!("{username:?}");
 }
 
+// 链式调用：? 运算符的高级用法
+// 对比 demo_3：demo_3 需要中间变量 username_file，demo_4 直接链式调用
+// 关键优化：File::open("hello2.txt")?.read_to_string(&mut username)?
+// 链式调用原理：
+// 1. File::open("hello2.txt")? 返回 File 对象（如果成功）
+// 2. 直接在返回的 File 对象上调用 .read_to_string(&mut username)?
+// 3. 省略了中间变量，代码更简洁
+// 为什么可以链式调用？
+// - File::open() 返回 Result<File, Error>
+// - ? 运算符解包得到 File
+// - File 实现了 Read trait，有 read_to_string 方法
+// - 方法可以直接在表达式结果上调用
 fn demo_4() {
     fn read_username_from_file() -> Result<String, io::Error> {
         let mut username = String::new();
 
+        // 链式调用：省略中间变量 username_file
+        // 等价于 demo_3 的两行代码：
+        // let mut username_file = File::open("hello2.txt")?;
+        // username_file.read_to_string(&mut username)?;
         File::open("hello2.txt")?.read_to_string(&mut username)?;
 
         Ok(username)
+    }
+    let username = read_username_from_file().expect("Unable to get username");
+    println!("{username:?}");
+}
+
+
+// 最简洁的写法：使用标准库的便捷函数
+// 对比前面所有 demo：
+// - demo_2: 手动 match 传播错误（冗长）
+// - demo_3: 使用 ? 运算符，但需要打开文件和读取两步
+// - demo_4: 链式调用，仍需两步操作
+// - demo_5: 一行搞定！使用 fs::read_to_string 直接读取文件内容
+//
+// fs::read_to_string 内部实现：
+// 1. 打开文件
+// 2. 创建 String
+// 3. 读取所有内容到 String
+// 4. 返回 Result<String, io::Error>
+//
+// 优势：
+// - 代码最简洁（只需1行）
+// - 自动处理所有细节（打开、读取、关闭）
+// - 标准库提供，无需自己实现
+// - 适用于小文件的一次性读取
+//
+// 注意：对于大文件，应使用 BufReader 流式读取以节省内存
+fn demo_5() {
+    fn read_username_from_file() -> Result<String, io::Error> {
+        // 一行代码完成所有操作：打开文件 + 读取内容 + 返回 Result
+        // 完全等价于 demo_3/demo_4 的所有逻辑，但更简洁
+        fs::read_to_string("hello.txt")
     }
     let username = read_username_from_file().expect("Unable to get username");
     println!("{username:?}");
@@ -163,6 +210,15 @@ fn main() {
         demo_4();
     });
     process_result(result, Some("demo_4"));
+
+    print_line_separator();
+    println!();
+
+    println!("=== demo_5 ===");
+    let result = panic::catch_unwind(|| {
+        demo_5();
+    });
+    process_result(result, Some("demo_5"));
     print_line_separator();
     println!();
 }
