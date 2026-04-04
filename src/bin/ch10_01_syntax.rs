@@ -1,3 +1,5 @@
+use helloworld::print_line_separator;
+
 // demo_1: 没有使用泛型的版本 - 代码重复问题
 // 问题：largest_i32 和 largest_char 的逻辑完全相同，只是类型不同
 // 这违反了 DRY（Don't Repeat Yourself）原则
@@ -231,12 +233,44 @@ fn demo_4() {
 
 }
 
+fn demo_5() {
+    struct Point<X1, Y1> {
+        x: X1,
+        y: Y1,
+    }
+
+    impl<X1, Y1> Point<X1, Y1> {
+        fn mixup<X2, Y2>(self, other: Point<X2, Y2>) -> Point<X1, Y2> {
+            Point {
+                x: self.x,
+                y: other.y,
+            }
+        }
+    }
+    let p1 = Point { x: 5, y: 10.4 };
+    let p2 = Point { x: "Hello", y: 'c' };
+
+    let p3 = p1.mixup(p2);
+
+    println!("p3.x = {}, p3.y = {}", p3.x, p3.y);
+}
+
 fn main() {
     demo_1();
     println!();
+    print_line_separator();
+
     demo_2();
     println!();
+    print_line_separator();
+
     demo_3();
     println!();
+    print_line_separator();
+
     demo_4();
+    println!();
+    print_line_separator();
+
+    demo_5();
 }
