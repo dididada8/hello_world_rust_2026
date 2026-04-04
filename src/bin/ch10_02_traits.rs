@@ -160,6 +160,52 @@ fn demo_3() {
         println!("Breaking news! {}", item.summarize());
         println!("Notify via {}", item);
     }
+    /* ========== Blanket Implementation（覆盖实现）==========
+
+    概念：为所有满足某个 trait 的类型自动实现另一个 trait
+
+    这段代码的含义：
+      - 为所有实现了 Display trait 的类型 T
+      - 自动实现 ToString trait
+
+    实际效果：
+      let num = 42;              // i32 实现了 Display
+      let s = num.to_string();   // 自动获得 ToString::to_string() 方法
+      println!("{}", s);         // "42"
+
+    标准库中的真实实现（简化版）：
+      impl<T: Display> ToString for T {
+          fn to_string(&self) -> String {
+              use std::fmt::Write;
+              let mut buf = String::new();
+              write!(&mut buf, "{}", self).unwrap();
+              buf
+          }
+      }
+
+    为什么强大：
+      - 只需为类型实现 Display
+      - 自动获得 to_string() 方法
+      - 避免重复代码
+
+    对比：
+      - 普通实现：为每个具体类型单独实现 trait
+        impl ToString for i32 { ... }
+        impl ToString for f64 { ... }
+        impl ToString for String { ... }
+        // 需要为每个类型都写一遍
+
+      - Blanket 实现：一次实现，覆盖所有满足条件的类型
+        impl<T: Display> ToString for T { ... }
+        // 只写一次，所有实现了 Display 的类型都自动获得
+
+    注意：这只是示例说明概念，标准库已经提供了这个实现
+    */
+    // impl<T: Display> ToString for T {
+    //     fn to_string(&self) -> String {
+    //         format!("{}", self)
+    //     }
+    // }
     let (a, _) = sample_data();
     notify(&a);
 }
@@ -230,8 +276,8 @@ fn demo_5() {
           - PartialOrd：用于 >= 比较运算符
 
         为什么需要这些约束：
-          - 第 196 行：self.x >= self.y  需要 PartialOrd
-          - 第 197/199 行：{} 格式化    需要 Display
+          - ：self.x >= self.y  需要 PartialOrd
+          - ：{} 格式化    需要 Display
         */
         fn cmp_display(&self) {
             if self.x >= self.y {
