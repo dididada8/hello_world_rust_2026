@@ -190,7 +190,7 @@ fn demo_5() {
             Self { x, y }
         }
     }
-
+    //通过使用与泛型类型参数一起的 trait 约束，我们可以为实现了特定 trait 的类型有条件地实现方法。
     impl<T: Display + PartialOrd> Pair<T> {
         fn cmp_display(&self) {
             if self.x >= self.y {
