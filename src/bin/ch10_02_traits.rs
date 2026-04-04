@@ -99,8 +99,12 @@ impl Summary for SocialPost {
 
 
 fn demo_1() {
-    let (_, post) = sample_data();
+    fn notify(item: &impl Summary) {
+        println!("Breaking news! {}", item.summarize());
+    }
+    let (a, post) = sample_data();
     println!("1 new post: {}", post.summarize());
+    notify(&a);
 }
 
 
