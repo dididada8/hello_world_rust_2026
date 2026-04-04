@@ -8,7 +8,6 @@ fn demo_1() {
             largest = number;
         }
     }
-
     println!("最大的数字是 {largest}");
     // {:?} 是 Debug 格式化输出
     // - {} 使用 Display trait（用户友好的显示格式）
