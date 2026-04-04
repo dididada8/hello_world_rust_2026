@@ -96,8 +96,6 @@ impl Summary for SocialPost {
     }
 }
 
-
-
 fn demo_1() {
     fn notify(item: &impl Summary) {
         println!("Breaking news! {}", item.summarize());
@@ -107,14 +105,20 @@ fn demo_1() {
     notify(&a);
 }
 
+fn demo_2() {
+    //Trait 约束：告诉编译器 T 必须实现 Summary trait，才能调用 summarize 方法
+    fn notify<T: Summary>(item: &T) {
+        println!("Breaking news! {}", item.summarize());
+    }
+    let (a, _) = sample_data();
+    notify(&a);
+}
 
 fn main() {
     demo_1();
     print_line_separator();
+    demo_2();
 }
-
-
-
 
 fn sample_data() -> (NewsArticle, SocialPost) {
     let article = NewsArticle {
