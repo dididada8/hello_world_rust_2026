@@ -185,13 +185,54 @@ fn demo_5() {
         y: T,
     }
 
+    /* 第一个 impl 块：为所有 Pair<T> 实现通用方法
+       无 trait 约束，任何类型 T 都可以使用 new 方法 */
     impl<T> Pair<T> {
         fn new(x: T, y: T) -> Self {
             Self { x, y }
         }
     }
-    //通过使用与泛型类型参数一起的 trait 约束，我们可以为实现了特定 trait 的类型有条件地实现方法。
+
+    /* ========== 条件实现（Conditional Implementation）==========
+
+    第二个 impl 块：只为满足特定条件的 Pair<T> 实现方法
+
+    语法：impl<T: Trait1 + Trait2> TypeName<T>
+
+    【关键概念】
+      - 条件实现：只有当 T 满足某些 trait 约束时，才实现特定方法
+      - 这个 impl 块只对实现了 Display + PartialOrd 的类型生效
+      - Pair<i32> 可以调用 cmp_display（i32 实现了这两个 trait）
+      - Pair<MyStruct> 不能调用 cmp_display（如果 MyStruct 没实现这些 trait）
+
+    【对比两个 impl 块】
+      impl<T> Pair<T>                     ← 无条件，所有 T 都有 new 方法
+      impl<T: Display + PartialOrd> Pair<T>  ← 有条件，只有特定 T 有 cmp_display 方法
+
+    【trait 约束说明】
+      - Display：要求 T 可以用 {} 格式化打印
+      - PartialOrd：要求 T 支持比较运算符（>=, <=, <, >）
+      - + 表示同时满足多个 trait
+
+    【实际效果】
+      let p1 = Pair::new(5, 10);           // ✅ i32 实现了 Display + PartialOrd
+      p1.cmp_display();                     // ✅ 可以调用
+
+      let p2 = Pair::new(vec![1], vec![2]); // ❌ Vec 没实现 Display
+      p2.cmp_display();                     // ❌ 编译错误！方法不存在
+    */
     impl<T: Display + PartialOrd> Pair<T> {
+        /* 比较并显示最大成员
+
+        方法说明：
+          - 只有 T 实现了 Display + PartialOrd 才能调用此方法
+          - Display：用于 println! 中的 {} 格式化
+          - PartialOrd：用于 >= 比较运算符
+
+        为什么需要这些约束：
+          - 第 196 行：self.x >= self.y  需要 PartialOrd
+          - 第 197/199 行：{} 格式化    需要 Display
+        */
         fn cmp_display(&self) {
             if self.x >= self.y {
                 println!("最大的成员是 x = {}", self.x);
