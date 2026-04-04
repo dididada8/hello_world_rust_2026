@@ -189,7 +189,8 @@ fn main() {
     demo_4();
 }
 
-fn sample_data() -> (NewsArticle, SocialPost) {
+//我们还可以使用 impl Trait 语法在返回位置返回实现 trait 的某些类型的值。
+fn sample_data() -> (impl Summary + Display, impl Summary) {
     let article = NewsArticle {
         headline: String::from("Penguins win the Stanley Cup Championship!"),
         location: String::from("Pittsburgh, PA, USA"),
