@@ -18,6 +18,17 @@ fn demo_1() {
     println!("{:?}", number_list);
 }
 
+// demo_2: 对 demo_1 的升级 - 提取函数消除重复代码
+// 改进点：
+// 1. 将查找最大值的逻辑封装到 largest 函数中
+// 2. 函数签名：largest(list: &[i32]) -> &i32
+//    - 参数：&[i32] 是切片引用，可以接受 Vec、数组等
+//    - 返回：&i32 返回引用，避免复制数据
+// 3. 复用：可以对多个列表调用同一个函数
+//
+// 对比 demo_1:
+// - demo_1: 代码写在主函数中，不可复用
+// - demo_2: 提取成函数，可以多次调用，避免重复代码
 fn demo_2() {
     fn largest(list: &[i32]) -> &i32 {
         let mut largest = &list[0];
@@ -28,12 +39,14 @@ fn demo_2() {
         }
         largest
     }
+
+    // 第一个列表
     let number_list = vec![34, 50, 25, 100, 65];
     let result = largest(&number_list);
     println!("{:?} 最大的数字是 {},", number_list, result);
 
+    // 第二个列表 - 复用同一个函数
     let number_list = vec![102, 34, 6000, 89, 54, 2, 43, 8];
-
     let result = largest(&number_list);
     println!("{:?} 最大的数字是 {},", number_list, result);
 }
