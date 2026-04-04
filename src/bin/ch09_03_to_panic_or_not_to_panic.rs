@@ -11,10 +11,10 @@ use std::{io, process};
 fn demo_1() {
     let ip_str = "127.0.0.11x"; // 无效的 IP 地址字符串（多了字符 'x'）
     let home = match ip_str.parse::<IpAddr>() {
-        Ok(ip) => ip,
+        Ok(ip) => ip, // 分支1: 返回 ip 给 home
         Err(e) => {
             eprintln!("解析 IP 地址失败: {}", e);
-            return; // 提前退出函数，后续代码不执行
+            return; // 分支2: 退出整个函数 提前退出函数，后续代码不执行
         }
     };
     println!("home: {}", home.is_ipv4()); // 只有解析成功才会执行
