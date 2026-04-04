@@ -96,6 +96,22 @@ impl Summary for SocialPost {
     }
 }
 
+
+
+fn demo_1() {
+    let (_, post) = sample_data();
+    println!("1 new post: {}", post.summarize());
+}
+
+
+fn main() {
+    demo_1();
+    print_line_separator();
+}
+
+
+
+
 fn sample_data() -> (NewsArticle, SocialPost) {
     let article = NewsArticle {
         headline: String::from("Penguins win the Stanley Cup Championship!"),
@@ -113,15 +129,4 @@ fn sample_data() -> (NewsArticle, SocialPost) {
         repost: false,
     };
     (article, post)
-}
-
-fn demo_1() {
-    let (_, post) = sample_data();
-    println!("1 new post: {}", post.summarize());
-}
-
-
-fn main() {
-    demo_1();
-    print_line_separator();
 }
