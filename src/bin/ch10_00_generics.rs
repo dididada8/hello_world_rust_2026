@@ -1,8 +1,8 @@
+use helloworld::print_line_separator;
+
 fn demo_1() {
     let number_list = vec![34, 50, 25, 100, 65];
-
     let mut largest = &number_list[0];
-
     for number in &number_list {
         if number > largest {
             largest = number;
@@ -18,6 +18,28 @@ fn demo_1() {
     println!("{:?}", number_list);
 }
 
+fn demo_2() {
+    fn largest(list: &[i32]) -> &i32 {
+        let mut largest = &list[0];
+        for item in list {
+            if item > largest {
+                largest = item;
+            }
+        }
+        largest
+    }
+    let number_list = vec![34, 50, 25, 100, 65];
+    let result = largest(&number_list);
+    println!("{:?} 最大的数字是 {},", number_list, result);
+
+    let number_list = vec![102, 34, 6000, 89, 54, 2, 43, 8];
+
+    let result = largest(&number_list);
+    println!("{:?} 最大的数字是 {},", number_list, result);
+}
+
 fn main() {
     demo_1();
+    print_line_separator();
+    demo_2();
 }
