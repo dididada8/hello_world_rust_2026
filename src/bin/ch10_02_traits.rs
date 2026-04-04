@@ -1,4 +1,5 @@
 use helloworld::print_line_separator;
+use std::fmt::Display;
 
 pub trait Summary {
     /* trait 的默认实现方法
@@ -70,6 +71,31 @@ pub trait Summary {
         String::from("(Read more...)") /* 无分号 = 表达式 = 返回值 */
     }
 }
+
+/* ========== derive 宏的使用说明 ==========
+
+语法：#[derive(Trait1, Trait2, ...)]
+
+✅ 可以自动派生的 trait（标准库内置）：
+   - Debug：调试输出（{:?}）
+   - Clone：克隆
+   - Copy：复制语义
+   - PartialEq, Eq：相等比较
+   - PartialOrd, Ord：顺序比较
+   - Hash：哈希
+
+示例：
+   #[derive(Debug, Clone, PartialEq)]
+   struct Point { x: i32, y: i32 }
+
+❌ 不能自动派生的 trait（需要手动实现）：
+   - Display：用户友好的显示格式（{}）
+   - Default：默认值
+   - 自定义 trait
+正确方式：手动实现 Display trait
+*/
+
+#[derive(Debug)]  /* 自动实现 Debug trait，可以用 {:?} 打印 */
 pub struct NewsArticle {
     pub headline: String,
     pub location: String,
@@ -80,6 +106,16 @@ pub struct NewsArticle {
 impl Summary for NewsArticle {
     fn summarize(&self) -> String {
         format!("{}, by {} ({})", self.headline, self.author, self.location)
+    }
+}
+
+/* 手动实现 Display trait
+   Display 不能通过 derive 自动实现，需要手动编写
+   实现后可以使用 {} 格式化打印
+*/
+impl std::fmt::Display for NewsArticle {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}, by {} ({})", self.headline, self.author, self.location)
     }
 }
 
@@ -114,10 +150,22 @@ fn demo_2() {
     notify(&a);
 }
 
+fn demo_3() {
+    //使用多个 Trait 约束：告诉编译器 T 必须同时实现 Summary 和 Display trait，才能调用 summarize 和 to_string 方法
+    fn notify<T: Summary + Display>(item: &T) {
+        println!("Breaking news! {}", item.summarize());
+        println!("Notify via {}", item);
+    }
+    let (a, _) = sample_data();
+    notify(&a);
+}
+
 fn main() {
     demo_1();
     print_line_separator();
     demo_2();
+    print_line_separator();
+    demo_3();
 }
 
 fn sample_data() -> (NewsArticle, SocialPost) {
