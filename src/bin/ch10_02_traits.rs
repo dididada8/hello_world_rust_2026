@@ -179,6 +179,32 @@ fn demo_4() {
     println!("The value of i is: {}", some_function(&i, &s));
 }
 
+fn demo_5() {
+    struct Pair<T> {
+        x: T,
+        y: T,
+    }
+
+    impl<T> Pair<T> {
+        fn new(x: T, y: T) -> Self {
+            Self { x, y }
+        }
+    }
+
+    impl<T: Display + PartialOrd> Pair<T> {
+        fn cmp_display(&self) {
+            if self.x >= self.y {
+                println!("最大的成员是 x = {}", self.x);
+            } else {
+                println!("最大的成员是 y = {}", self.y);
+            }
+        }
+    }
+
+    let pair = Pair::new(5, 10);
+    pair.cmp_display();
+}
+
 fn main() {
     demo_1();
     print_line_separator();
@@ -187,6 +213,8 @@ fn main() {
     demo_3();
     print_line_separator();
     demo_4();
+    print_line_separator();
+    demo_5();
 }
 
 //我们还可以使用 impl Trait 语法在返回位置返回实现 trait 的某些类型的值。
