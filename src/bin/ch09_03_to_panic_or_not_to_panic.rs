@@ -30,6 +30,13 @@ fn demo_2() {
     let ip_str = "127.0.0.11x"; // 无效的 IP 地址
     let home = ip_str.parse::<IpAddr>().unwrap_or_else(|e| {
         eprintln!("解析 IP 地址失败: {}", e);
+        // unwrap() 详解：
+        // - "127.0.0.1".parse() 返回 Result<IpAddr, AddrParseError>
+        // - unwrap() 的作用：
+        //   * 如果是 Ok(ip)  => 返回 ip（IpAddr 类型）
+        //   * 如果是 Err(e)  => panic! 程序崩溃
+        // - 这里可以安全使用 unwrap()，因为 "127.0.0.1" 是硬编码的有效 IP
+        // - 如果这里失败了，说明程序逻辑有严重错误，应该崩溃
         "127.0.0.1".parse().unwrap() // 提供默认值：localhost
     });
     println!("home: {}", home.is_ipv4()); // 无论解析成败，都会执行
