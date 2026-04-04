@@ -140,34 +140,93 @@ fn demo_3() {
     char_point.print(); // 调用 Point<char> 的 print 方法
 }
 
+// demo_4: 使用 trait object 实现运行时多态
+// 解决问题：将不同泛型类型的 Point 存储在同一个 Vec 中
+// 方案：使用 Box<dyn Trait> 实现动态分发
 fn demo_4() {
+    // 定义 trait
     trait Printable {
         fn print(&self);
     }
+
+    // 泛型结构体
     struct Point<T> {
         x: T,
         y: T,
     }
+
+    // 为 Point<T> 实现构造方法
     impl<T> Point<T> {
         fn new(x: T, y: T) -> Point<T> {
             Point { x, y }
         }
     }
-    impl <T: std::fmt::Debug> Printable for Point<T> {
+
+    // 为 Point<T> 实现 Printable trait
+    // 要求 T 必须实现 Debug，这样才能用 {:?} 打印
+    impl<T: std::fmt::Debug> Printable for Point<T> {
         fn print(&self) {
             println!("x: {:?}, y: {:?}", self.x, self.y);
         }
     }
 
-    // 使用 trait object 存储不同类型的 Point 实例
-    let points:Vec<Box<dyn Printable>> = vec![
-        Box::new(Point::new(5, 10)), // Point<i32>
-        Box::new(Point::new(1.0, 4.0)), // Point<f64>
-        Box::new(Point::new('a', 'b')), // Point<char>
+    // ========== 使用 trait object 存储不同类型 ==========
+    //
+    // 类型：Vec<Box<dyn Printable>>
+    //
+    // 【Box】- 智能指针，堆分配
+    //   - 将数据分配到堆上
+    //   - 提供固定大小的指针（栈上 8 字节/64位系统）
+    //   - 拥有数据的所有权
+    //
+    // 【dyn Printable】- trait object（动态 trait 对象）
+    //   - dyn：动态分发关键字（dynamic dispatch）
+    //   - Printable：trait 名称
+    //   - 含义：任何实现了 Printable trait 的类型
+    //   - 特点：
+    //     * 运行时才确定具体类型
+    //     * 通过虚函数表（vtable）调用方法
+    //     * 大小在编译时未知（unsized type）
+    //
+    // 【为什么需要 Box】
+    //   - Vec<T> 要求 T 必须是 Sized（编译时大小已知）
+    //   - dyn Printable 是 unsized（不同类型大小不同）
+    //   - Box<dyn Printable> 是 Sized（指针大小固定）
+    //
+    // 【内存布局】
+    //   栈上：Vec { ptr, len, cap }
+    //          ↓
+    //   堆上：[Box指针1, Box指针2, Box指针3]
+    //          ↓        ↓          ↓
+    //   堆上：Point    Point      Point
+    //        <i32>    <f64>      <char>
+    //
+    // 【性能代价】
+    //   - 堆分配开销
+    //   - 动态分发（vtable 查找方法）
+    //   - 相比泛型有运行时成本
+    //
+    // 【类比 Java】
+    //   - 类似 List<Printable>（接口类型）
+    //   - 都是存储引用/指针
+    //   - 都使用动态分发
+    //
+    // 【对比】
+    //   ❌ 错误：let points = vec![Point<i32>, Point<f64>];
+    //           // 类型不一致，无法编译
+    //   ✅ 正确：let points: Vec<Box<dyn Printable>> = vec![...];
+    //           // 通过 trait object 统一类型
+    let points: Vec<Box<dyn Printable>> = vec![
+        Box::new(Point::new(5, 10)),       // Point<i32> -> 装箱为 Box<dyn Printable>
+        Box::new(Point::new(1.0, 4.0)),    // Point<f64> -> 装箱为 Box<dyn Printable>
+        Box::new(Point::new('a', 'b')),    // Point<char> -> 装箱为 Box<dyn Printable>
     ];
 
+    // 遍历 trait objects
+    // point 的类型是 Box<dyn Printable>
+    // 调用 print() 时通过 vtable 动态分发到具体类型的实现
     for point in points {
-        point.print();
+        point.print();  // 运行时通过 vtable 查找正确的 print 方法
     }
 
 }
