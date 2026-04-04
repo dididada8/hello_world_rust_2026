@@ -1,3 +1,5 @@
+use helloworld::print_line_separator;
+
 pub trait Summary {
     /* trait 的默认实现方法
 
@@ -65,7 +67,7 @@ pub trait Summary {
          - 类型不匹配！
     */
     fn summarize(&self) -> String {
-        String::from("(Read more...)")  /* 无分号 = 表达式 = 返回值 */
+        String::from("(Read more...)") /* 无分号 = 表达式 = 返回值 */
     }
 }
 pub struct NewsArticle {
@@ -94,15 +96,32 @@ impl Summary for SocialPost {
     }
 }
 
-fn main() {
+fn sample_data() -> (NewsArticle, SocialPost) {
+    let article = NewsArticle {
+        headline: String::from("Penguins win the Stanley Cup Championship!"),
+        location: String::from("Pittsburgh, PA, USA"),
+        author: String::from("Iceburgh"),
+        content: String::from(
+            "The Pittsburgh Penguins once again are the best \
+             hockey team in the NHL.",
+        ),
+    };
     let post = SocialPost {
         username: String::from("horse_ebooks"),
-        content: String::from(
-            "of course, as you probably already know, people",
-        ),
+        content: String::from("of course, as you probably already know, people"),
         reply: false,
         repost: false,
     };
+    (article, post)
+}
 
+fn demo_1() {
+    let (_, post) = sample_data();
     println!("1 new post: {}", post.summarize());
+}
+
+
+fn main() {
+    demo_1();
+    print_line_separator();
 }
