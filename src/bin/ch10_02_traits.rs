@@ -1,5 +1,5 @@
 use helloworld::print_line_separator;
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 
 pub trait Summary {
     /* trait 的默认实现方法
@@ -95,7 +95,7 @@ pub trait Summary {
 正确方式：手动实现 Display trait
 */
 
-#[derive(Debug)]  /* 自动实现 Debug trait，可以用 {:?} 打印 */
+#[derive(Debug)] /* 自动实现 Debug trait，可以用 {:?} 打印 */
 pub struct NewsArticle {
     pub headline: String,
     pub location: String,
@@ -115,7 +115,11 @@ impl Summary for NewsArticle {
 */
 impl std::fmt::Display for NewsArticle {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}, by {} ({})", self.headline, self.author, self.location)
+        write!(
+            f,
+            "{}, by {} ({})",
+            self.headline, self.author, self.location
+        )
     }
 }
 
@@ -160,12 +164,29 @@ fn demo_3() {
     notify(&a);
 }
 
+fn demo_4() {
+    fn some_function<T, U>(t: &T, u: &U) -> i32
+    where
+        T: Display + Clone,
+        U: Clone + Debug,
+    {
+        // 函数体
+        println!("pass parameter: t = {}, u = {:?}", t, u);
+        0
+    }
+    let i = 3;
+    let s = "hello";
+    println!("The value of i is: {}", some_function(&i, &s));
+}
+
 fn main() {
     demo_1();
     print_line_separator();
     demo_2();
     print_line_separator();
     demo_3();
+    print_line_separator();
+    demo_4();
 }
 
 fn sample_data() -> (NewsArticle, SocialPost) {
