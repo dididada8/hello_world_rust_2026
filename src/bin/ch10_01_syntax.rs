@@ -67,7 +67,8 @@ fn demo_2() {
         let mut largest = &list[0];
 
         for item in list {
-            if item > largest {  // 需要 PartialOrd trait 才能使用 >
+            if item > largest {
+                // 需要 PartialOrd trait 才能使用 >
                 largest = item;
             }
         }
@@ -77,12 +78,12 @@ fn demo_2() {
 
     // 测试 i32 类型
     let number_list = vec![34, 50, 25, 100, 65];
-    let result = largest(&number_list);  // T 推断为 i32
+    let result = largest(&number_list); // T 推断为 i32
     println!("最大的数字是 {result}");
 
     // 测试 char 类型 - 同一个函数！
     let char_list = vec!['y', 'm', 'a', 'q'];
-    let result = largest(&char_list);  // T 推断为 char
+    let result = largest(&char_list); // T 推断为 char
     println!("最大的字符是 {result}");
 }
 
@@ -116,9 +117,9 @@ fn demo_3() {
     }
 
     // 创建不同类型的 Point 实例
-    let integer = Point { x: 5, y: 10 };        // Point<i32>
-    let float = Point { x: 1.0, y: 4.0 };       // Point<f64>
-    let char_point = Point { x: 'a', y: 'b' };  // Point<char>
+    let integer = Point { x: 5, y: 10 }; // Point<i32>
+    let float = Point { x: 1.0, y: 4.0 }; // Point<f64>
+    let char_point = Point { x: 'a', y: 'b' }; // Point<char>
 
     // ========== 重要概念：泛型单态化（Monomorphization）==========
     // Point<i32>、Point<f64>、Point<char> 是三个完全不同的类型！
@@ -134,9 +135,41 @@ fn demo_3() {
     // 3. 使用 enum 包装不同类型
 
     // 调用方法
-    integer.print();      // 调用 Point<i32> 的 print 方法
-    float.print();        // 调用 Point<f64> 的 print 方法
-    char_point.print();   // 调用 Point<char> 的 print 方法
+    integer.print(); // 调用 Point<i32> 的 print 方法
+    float.print(); // 调用 Point<f64> 的 print 方法
+    char_point.print(); // 调用 Point<char> 的 print 方法
+}
+
+fn demo_4() {
+    trait Printable {
+        fn print(&self);
+    }
+    struct Point<T> {
+        x: T,
+        y: T,
+    }
+    impl<T> Point<T> {
+        fn new(x: T, y: T) -> Point<T> {
+            Point { x, y }
+        }
+    }
+    impl <T: std::fmt::Debug> Printable for Point<T> {
+        fn print(&self) {
+            println!("x: {:?}, y: {:?}", self.x, self.y);
+        }
+    }
+
+    // 使用 trait object 存储不同类型的 Point 实例
+    let points:Vec<Box<dyn Printable>> = vec![
+        Box::new(Point::new(5, 10)), // Point<i32>
+        Box::new(Point::new(1.0, 4.0)), // Point<f64>
+        Box::new(Point::new('a', 'b')), // Point<char>
+    ];
+
+    for point in points {
+        point.print();
+    }
+
 }
 
 fn main() {
@@ -145,4 +178,6 @@ fn main() {
     demo_2();
     println!();
     demo_3();
+    println!();
+    demo_4();
 }
