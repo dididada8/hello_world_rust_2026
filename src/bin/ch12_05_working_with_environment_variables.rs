@@ -1,30 +1,8 @@
-pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let mut results = Vec::new();
-
-    for line in contents.lines() {
-        if line.contains(query) {
-            results.push(line);
-        }
-    }
-
-    results
-}
-pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let query = query.to_lowercase();
-    let mut results = Vec::new();
-
-    for line in contents.lines() {
-        if line.to_lowercase().contains(&query) {
-            results.push(line);
-        }
-    }
-
-    results
-}
+use crate::ch12_05_working_with_environment_variables::{search, search_case_insensitive};
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use crate::ch12_05_working_with_environment_variables::{search, search_case_insensitive};
 
     #[test]
     fn case_sensitive() {
@@ -54,5 +32,38 @@ Trust me.";
     }
 }
 
+fn main() {
+    let query = "duct";
+    let contents = "";
+    println!("{:?}", search(query, contents));
 
-fn main() {}
+    let query = "rUsT";
+    let contents = "";
+    println!("{:?}", search_case_insensitive(query, contents));
+}
+
+mod ch12_05_working_with_environment_variables {
+    pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+        let mut results = Vec::new();
+
+        for line in contents.lines() {
+            if line.contains(query) {
+                results.push(line);
+            }
+        }
+
+        results
+    }
+    pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+        let query = query.to_lowercase();
+        let mut results = Vec::new();
+
+        for line in contents.lines() {
+            if line.to_lowercase().contains(&query) {
+                results.push(line);
+            }
+        }
+
+        results
+    }
+}
