@@ -1,4 +1,5 @@
 use helloworld::print_line_separator;
+use std::error::Error;
 use std::{env, fs};
 //cargo run --bin ch12_01_accepting_command_line_arguments -- searchstring example-filename.txt
 
@@ -10,6 +11,13 @@ struct Config {
 
 impl Config {
     fn new(args: &[String]) -> Config {
+        Config {
+            query: args[1].clone(),
+            file_path: args[2].clone(),
+        }
+    }
+    fn build(args: &Vec<String>) -> Config {
+        check_args(args);
         Config {
             query: args[1].clone(),
             file_path: args[2].clone(),
@@ -54,11 +62,23 @@ fn demo_2() {
     println!("{:?},{:?}", args, config);
 }
 
+fn demo_3() {
+    let args: Vec<String> = env::args().collect();
+    let config = Config::build(&args);
+    run(config).expect("Something went wrong");
+}
+
 fn main() {
+    println!("=======demo_1()=======");
     demo_1();
     print_line_separator();
     println!();
+    println!("=======demo_2()=======");
     demo_2();
+    print_line_separator();
+    println!();
+    println!("=======demo_3()=======");
+    demo_3();
 }
 
 fn check_args(args: &Vec<String>) {
@@ -69,4 +89,14 @@ fn check_args(args: &Vec<String>) {
         );
         std::process::exit(1);
     }
+}
+
+// --snip--
+
+fn run(config: Config) -> Result<(), Box<dyn Error>> {
+    let contents = fs::read_to_string(config.file_path)?;
+
+    println!("With text:\n{contents}");
+
+    Ok(())
 }
