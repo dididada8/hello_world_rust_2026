@@ -7,6 +7,8 @@
   - 防止悬垂引用（dangling reference）
   - 确保引用始终有效
 */
+use helloworld::print_line_separator;
+use std::fmt::Display;
 
 fn demo_1() {
     /* ❌ 错误版本：缺少生命周期标注
@@ -54,9 +56,9 @@ fn demo_1() {
     */
     fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
         if x.len() > y.len() {
-            x  // 返回 x 的引用
+            x // 返回 x 的引用
         } else {
-            y  // 返回 y 的引用
+            y // 返回 y 的引用
         }
     }
 
@@ -102,7 +104,7 @@ fn demo_2() {
     */
     fn longest_owned(x: &str, y: &str) -> String {
         if x.len() > y.len() {
-            x.to_string()  // 转换为 String，拥有所有权
+            x.to_string() // 转换为 String，拥有所有权
         } else {
             y.to_string()
         }
@@ -125,7 +127,7 @@ fn demo_2() {
       - 需要额外的逻辑来获取实际值
     */
     fn longest_index(x: &str, y: &str) -> bool {
-        x.len() > y.len()  // 返回 true 表示 x 更长，false 表示 y 更长
+        x.len() > y.len() // 返回 true 表示 x 更长，false 表示 y 更长
     }
 
     let s1 = "hello world";
@@ -146,14 +148,10 @@ fn demo_2() {
       - 不适用于临时创建的 String
     */
     fn longest_static(x: &'static str, y: &'static str) -> &'static str {
-        if x.len() > y.len() {
-            x
-        } else {
-            y
-        }
+        if x.len() > y.len() { x } else { y }
     }
 
-    let s1 = "hello world";  // 字符串字面量是 'static
+    let s1 = "hello world"; // 字符串字面量是 'static
     let s2 = "hi";
     let result = longest_static(s1, s2);
     println!("方案3 - 最长的字符串: {}", result);
@@ -198,9 +196,50 @@ fn demo_2() {
       - 如果只是比较 → 返回 bool 或索引
     */
 }
+fn demo_3() {
+    fn longest_with_an_announcement<'a, T>(x: &'a str, y: &'a str, ann: T) -> &'a str
+    where
+        T: Display,
+    {
+        println!("公告！{ann}");
+        if x.len() > y.len() { x } else { y }
+    }
+    fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
+        if x.len() > y.len() { x } else { y }
+    }
+
+    // 第一次调用：使用字符串字面量（&str）
+    let x = "hello world, let us learn Rust!!!";
+    let result = longest_with_an_announcement(x, "world", "这是一个公告");
+    println!("最长的字符串: {}", result);
+
+    let x_owned = format!("{}{}", x, "!!!");  // x_owned 的类型是 String
+    let result = longest(x_owned.as_str(), "world");  // 使用 .as_str() 转换为 &str
+    println!("最长的字符串: {}", result);
+
+    /* 类型对比说明：
+    &str（字符串切片）：
+        - 不可变引用
+        - 不拥有数据
+        - 固定大小（在栈上）
+        - 例：let s = "hello";
+
+    String（字符串类型）：
+        - 可变
+        - 拥有数据
+        - 大小可变（在堆上）
+        - 例：let s = String::from("hello");
+
+    转换：
+        - String -> &str：使用 .as_str() 或 &s 或 &s[..]
+        - &str -> String：使用 .to_string() 或 String::from()
+    */
+}
 
 fn main() {
     demo_1();
     println!("\n========== 不使用生命周期的替代方案 ==========\n");
     demo_2();
+    print_line_separator();
+    demo_3();
 }
