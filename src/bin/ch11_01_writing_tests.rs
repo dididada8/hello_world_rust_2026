@@ -52,6 +52,12 @@ mod tests {
     }
 
     #[test]
+    fn test_add_no() {
+        assert_ne!(add(5, 0), 1);
+    }
+
+
+    #[test]
     fn larger_can_hold_smaller() {
         let larger = Rectangle {
             width: 8,
