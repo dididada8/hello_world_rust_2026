@@ -87,6 +87,120 @@ fn demo_1() {
     */
 }
 
+/* ========== demo_2: 不使用生命周期语法的替代方案 ========== */
+fn demo_2() {
+    /* 方案1：返回 String（拥有所有权）而不是引用
+
+    优点：
+      - 不需要生命周期标注
+      - 调用者拥有返回值，可以随意使用
+      - 简单直观
+
+    缺点：
+      - 需要分配堆内存（性能开销）
+      - 克隆数据（如果数据很大会很慢）
+    */
+    fn longest_owned(x: &str, y: &str) -> String {
+        if x.len() > y.len() {
+            x.to_string()  // 转换为 String，拥有所有权
+        } else {
+            y.to_string()
+        }
+    }
+
+    let s1 = "hello world";
+    let s2 = "hi";
+    let result = longest_owned(s1, s2);
+    println!("方案1 - 最长的字符串: {}", result);
+
+    /* 方案2：返回索引而不是引用
+
+    优点：
+      - 不需要生命周期标注
+      - 避免借用问题
+      - 索引是 Copy 类型
+
+    缺点：
+      - 调用者需要保留原始数据
+      - 需要额外的逻辑来获取实际值
+    */
+    fn longest_index(x: &str, y: &str) -> bool {
+        x.len() > y.len()  // 返回 true 表示 x 更长，false 表示 y 更长
+    }
+
+    let s1 = "hello world";
+    let s2 = "hi";
+    let is_first_longer = longest_index(s1, s2);
+    let result = if is_first_longer { s1 } else { s2 };
+    println!("方案2 - 最长的字符串: {}", result);
+
+    /* 方案3：使用静态生命周期 'static
+
+    适用场景：
+      - 字符串字面量（存储在程序二进制文件中）
+      - 静态变量
+      - 整个程序运行期间都有效的数据
+
+    限制：
+      - 只能用于 'static 数据
+      - 不适用于临时创建的 String
+    */
+    fn longest_static(x: &'static str, y: &'static str) -> &'static str {
+        if x.len() > y.len() {
+            x
+        } else {
+            y
+        }
+    }
+
+    let s1 = "hello world";  // 字符串字面量是 'static
+    let s2 = "hi";
+    let result = longest_static(s1, s2);
+    println!("方案3 - 最长的字符串: {}", result);
+
+    /* 方案4：使用元组返回多个值
+
+    优点：
+      - 不需要生命周期标注
+      - 灵活，可以返回额外信息
+
+    缺点：
+      - 调用者需要处理元组
+      - 语法稍微复杂
+    */
+    fn longest_with_length(x: &str, y: &str) -> (String, usize) {
+        if x.len() > y.len() {
+            (x.to_string(), x.len())
+        } else {
+            (y.to_string(), y.len())
+        }
+    }
+
+    let s1 = "hello world";
+    let s2 = "hi";
+    let (result, length) = longest_with_length(s1, s2);
+    println!("方案4 - 最长的字符串: {}, 长度: {}", result, length);
+
+    /* ========== 对比总结 ==========
+
+    | 方案              | 是否需要生命周期 | 性能 | 灵活性 | 适用场景 |
+    |-------------------|------------------|------|--------|----------|
+    | 返回引用 + 生命周期 | ✅ 需要         | 高   | 高     | 零拷贝，高性能场景 |
+    | 返回 String       | ❌ 不需要       | 中   | 高     | 数据较小，简单场景 |
+    | 返回索引/bool     | ❌ 不需要       | 高   | 低     | 简单判断 |
+    | 'static 生命周期  | ❌ 不需要       | 高   | 低     | 只用于静态数据 |
+    | 返回元组          | ❌ 不需要       | 中   | 高     | 需要多个返回值 |
+
+    最佳实践：
+      - 如果性能关键且数据量大 → 使用生命周期标注 + 返回引用
+      - 如果简单场景且数据量小 → 返回 String（clone）
+      - 如果是静态字符串 → 使用 'static
+      - 如果只是比较 → 返回 bool 或索引
+    */
+}
+
 fn main() {
     demo_1();
+    println!("\n========== 不使用生命周期的替代方案 ==========\n");
+    demo_2();
 }
