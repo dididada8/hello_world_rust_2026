@@ -141,7 +141,7 @@ fn demo_4() {
 
     let mut borrows_mutably = || {
         let num = rng().random_range(1..=100);
-        if list.contains(&num) {
+        if list.contains(&num) { //判断
             return;
         }
         list.push(num);
@@ -151,6 +151,11 @@ fn demo_4() {
     borrows_mutably();
 
     println!("After calling closure: {list:?}");
+    list.sort();
+    for num in &mut list { //&mut list 是一个可变引用，允许我们修改 list 中的元素
+        *num += 1; // 注意：这里需要解引用 num，因为 num 是 &mut i32 类型
+    }
+    println!("After modifying list: {list:?}");
 }
 
 fn main() {
