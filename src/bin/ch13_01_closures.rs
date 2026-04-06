@@ -10,6 +10,11 @@ struct Inventory {
 }
 impl Inventory {
     fn giveaway(&self, user_preference: Option<ShirtColor>) -> ShirtColor {
+        // Option::map 的用法：
+        // - 如果 user_preference 是 Some(color)，则执行闭包 |color| self.check_stock(&color)
+        //   将 Some(color) 转换为 Some(bool)
+        // - 如果 user_preference 是 None，则直接返回 None，不执行闭包
+        // - unwrap_or(false) 会在结果为 None 时返回 false，为 Some(bool) 时返回 bool 值
         if user_preference
             .map(|color| self.check_stock(&color))
             .unwrap_or(false)
