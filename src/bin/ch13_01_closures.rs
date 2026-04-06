@@ -124,10 +124,24 @@ fn demo_3() {
     );
 }
 
+fn demo_4() {
+    let list = vec![1, 2, 3];
+    println!("Before defining closure: {list:?}");
+
+    let only_borrows = || println!("From closure: {list:?}");
+
+    println!("Before calling closure: {list:?}");
+    only_borrows();
+    println!("After calling closure: {list:?}");
+}
+
+
 fn main() {
     demo_1();
     print_line_separator();
     demo_2();
     print_line_separator();
     demo_3();
+    print_line_separator();
+    demo_4();
 }
