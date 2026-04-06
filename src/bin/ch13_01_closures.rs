@@ -141,18 +141,28 @@ fn demo_4() {
 
     let mut borrows_mutably = || {
         let num = rng().random_range(1..=100);
-        if list.contains(&num) { //判断
+        if list.contains(&num) {
+            //判断
             return;
         }
         list.push(num);
     };
+
+    /*
+    注意，在 borrows_mutably 闭包的定义和调用之间不再有 println!：
+    当 borrows_mutably 被定义时，它捕获了对 list 的可变引用。我们在闭包被调用后不再使用闭包，
+    所以可变借用结束。在闭包定义和闭包调用之间，不允许不可变借用来打印，因为当有可变借用时，
+    不允许其他借用。
+     */
+    //println!("Before calling closure: {list:?}");
     borrows_mutably();
     borrows_mutably();
     borrows_mutably();
 
     println!("After calling closure: {list:?}");
     list.sort();
-    for num in &mut list { //&mut list 是一个可变引用，允许我们修改 list 中的元素
+    for num in &mut list {
+        //&mut list 是一个可变引用，允许我们修改 list 中的元素
         *num += 1; // 注意：这里需要解引用 num，因为 num 是 &mut i32 类型
     }
     println!("After modifying list: {list:?}");
