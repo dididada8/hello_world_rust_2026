@@ -1,4 +1,5 @@
 use helloworld::print_line_separator;
+use rand::{RngExt, rng};
 use std::thread;
 use std::time::Duration;
 
@@ -133,8 +134,24 @@ fn demo_4() {
     println!("Before calling closure: {list:?}");
     only_borrows();
     println!("After calling closure: {list:?}");
-}
+    println!();
 
+    let mut list = vec![1, 2, 3];
+    println!("Before defining closure: {list:?}");
+
+    let mut borrows_mutably = || {
+        let num = rng().random_range(1..=100);
+        if list.contains(&num) {
+            return;
+        }
+        list.push(num);
+    };
+    borrows_mutably();
+    borrows_mutably();
+    borrows_mutably();
+
+    println!("After calling closure: {list:?}");
+}
 
 fn main() {
     demo_1();
