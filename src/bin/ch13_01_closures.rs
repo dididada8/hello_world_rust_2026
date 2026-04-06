@@ -101,8 +101,33 @@ fn demo_2() {
     generate_workout(simulated_user_specified_value, simulated_random_number);
 }
 
+fn demo_3() {
+    fn add_one_v1(x: u32) -> u32 {
+        x + 1
+    }
+    let add_one_v2 = |x: u32| -> u32 { x + 1 };
+    let add_one_v3 = |x: u32| x + 1;
+    let add_one_v4 = |x: u32| x + 1;
+
+    let example_closure = |x| x;
+
+    let s = example_closure(String::from("hello"));
+    //let n = example_closure(5); // 错误：类型不匹配，因为 example_closure 已经被推断为接受 String 类型的参数
+
+    println!(
+        "s = {}, add_one_v1={}, add_one_v2={}, add_one_v3={},add_one_v4={}",
+        s,
+        add_one_v1(1),
+        add_one_v2(2),
+        add_one_v3(3),
+        add_one_v4(4)
+    );
+}
+
 fn main() {
     demo_1();
     print_line_separator();
     demo_2();
+    print_line_separator();
+    demo_3();
 }
