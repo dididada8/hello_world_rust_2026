@@ -10,7 +10,13 @@ struct Inventory {
 }
 impl Inventory {
     fn giveaway(&self, user_preference: Option<ShirtColor>) -> ShirtColor {
-        user_preference.unwrap_or_else(|| self.most_stocked())
+        if user_preference
+            .map(|color| self.check_stock(&color))
+            .unwrap_or(false)
+        {
+            return user_preference.unwrap();
+        }
+        self.most_stocked()
     }
 
     fn most_stocked(&self) -> ShirtColor {
@@ -24,15 +30,24 @@ impl Inventory {
             .unwrap();
         *color
     }
+
+    fn check_stock(&self, color: &ShirtColor) -> bool {
+        for shirt in &self.shirts {
+            if shirt == color {
+                return true;
+            }
+        }
+        println!("No more {:?} shirts!", color);
+        false
+    }
 }
 
 fn demo_1() {
     let inventory = Inventory {
-        shirts: vec![ShirtColor::Red, ShirtColor::Blue,ShirtColor::Red],
+        shirts: vec![ShirtColor::Red, ShirtColor::Blue, ShirtColor::Red],
     };
 
     assert_eq!(inventory.giveaway(Some(ShirtColor::Red)), ShirtColor::Red);
-
 
     let user_pref1 = Some(ShirtColor::Yellow);
     let giveaway1 = inventory.giveaway(user_pref1);
