@@ -167,6 +167,16 @@ fn demo_4() {
     }
     println!("After modifying list: {list:?}");
 }
+//让我们简要探讨使用需要 move 关键字的闭包生成一个新线程
+fn demo_5() {
+    let list = vec![1, 2, 3];
+    println!("Before defining closure: {list:?}");
+    thread::spawn(move || {
+        println!("From thread: {list:?}");
+    })
+    .join()
+    .unwrap();
+}
 
 fn main() {
     demo_1();
@@ -176,4 +186,6 @@ fn main() {
     demo_3();
     print_line_separator();
     demo_4();
+    print_line_separator();
+    demo_5();
 }
