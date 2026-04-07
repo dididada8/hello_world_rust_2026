@@ -227,7 +227,12 @@ fn demo_5() {
         这段代码会导致编译错误，因为闭包在 sort_by_key 中被多次调用，
         每次调用都会尝试将 value 移动到 sort_operations 中。
      */
-    println!("{list:#?}");
+    let mut num_sort_operations = 0;
+    list.sort_by_key(|r| {
+        num_sort_operations += 1; //计算了排序时候的调用次数
+        r.width
+    });
+    println!("{list:#?}, sorted in {num_sort_operations} operations");
 }
 
 fn main() {
