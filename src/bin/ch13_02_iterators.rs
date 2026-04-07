@@ -1,3 +1,5 @@
+use helloworld::print_line_separator;
+
 fn demo_1() {
     fn iterator_demonstration() {
         let v1 = vec![1, 2, 3];
@@ -29,7 +31,7 @@ fn demo_1() {
     fn iterator_collect() {
         let v1 = vec![1, 2, 3];
         let v1_iter = v1.iter();
-        let v1_iter_collected: Vec<_> = v1_iter.map(|x | x + 1).collect();
+        let v1_iter_collected: Vec<_> = v1_iter.map(|x| x + 1).collect();
         assert_eq!(v1_iter_collected, vec![2, 3, 4]);
     }
 
@@ -39,6 +41,52 @@ fn demo_1() {
     iterator_collect();
 }
 
+fn demo_2() {
+    #[derive(PartialEq, Debug)]
+    struct Shoe {
+        size: u32,
+        style: String,
+    }
+
+    fn shoes_in_size(shoes: Vec<Shoe>, shoe_size: u32) -> Vec<Shoe> {
+        shoes.into_iter().filter(|s| s.size == shoe_size).collect()
+    }
+
+    let shoes = vec![
+        Shoe {
+            size: 10,
+            style: String::from("sneaker"),
+        },
+        Shoe {
+            size: 13,
+            style: String::from("sandal"),
+        },
+        Shoe {
+            size: 10,
+            style: String::from("boot"),
+        },
+    ];
+
+    let in_my_size = shoes_in_size(shoes, 10);
+
+    assert_eq!(
+        in_my_size,
+        vec![
+            Shoe {
+                size: 10,
+                style: String::from("sneaker")
+            },
+            Shoe {
+                size: 10,
+                style: String::from("boot")
+            },
+        ]
+    );
+
+}
+
 fn main() {
     demo_1();
+    print_line_separator();
+    demo_2();
 }
