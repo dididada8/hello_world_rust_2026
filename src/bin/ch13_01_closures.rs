@@ -186,9 +186,18 @@ fn demo_5() {
     }
 
     let mut list = [
-        Rectangle { width: 10, height: 1 },
-        Rectangle { width: 3, height: 5 },
-        Rectangle { width: 7, height: 12 },
+        Rectangle {
+            width: 10,
+            height: 1,
+        },
+        Rectangle {
+            width: 3,
+            height: 5,
+        },
+        Rectangle {
+            width: 7,
+            height: 12,
+        },
     ];
 
     list.sort_by_key(|r| r.width);
@@ -196,6 +205,29 @@ fn demo_5() {
     list.sort_by_key(|r| r.height);
     println!("Sorted by height: {list:?}");
 
+    let find_one = list.iter().find(|r| r.width == 11).unwrap_or_else(|| {
+        println!("演示FnOnce  Option<T> 上 unwrap_or_else 方法的定义 适用于可以被调用一次的闭包。所有闭包至少实现这个 trait，\
+        因为所有闭包都可以被调用。将捕获的值移出其主体的闭包将只实现 FnOnce，而不实现其他 Fn trait，\
+        因为它只能被调用一次。");
+        &Rectangle {
+            width: 0,
+            height: 0,
+        }
+    });
+    println!("Find Rectangle with width 10: {:?}", find_one);
+
+    let value = String::from("closure called");
+
+    /*
+    let mut sort_operations = vec![];
+    list.sort_by_key(|r| {
+        sort_operations.push(value);
+        r.width
+    });
+        这段代码会导致编译错误，因为闭包在 sort_by_key 中被多次调用，
+        每次调用都会尝试将 value 移动到 sort_operations 中。
+     */
+    println!("{list:#?}");
 }
 
 fn main() {
