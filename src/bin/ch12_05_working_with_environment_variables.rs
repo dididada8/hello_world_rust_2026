@@ -1,11 +1,12 @@
 use crate::ch12_05_working_with_environment_variables::{
-    Config, run, search, search_case_insensitive,
+    Config, run,
 };
+use helloworld::{search, search_case_insensitive};
 use std::{env, process};
 
 #[cfg(test)]
 mod tests {
-    use crate::ch12_05_working_with_environment_variables::{search, search_case_insensitive};
+    use helloworld::{search, search_case_insensitive};
 
     #[test]
     fn case_sensitive() {
@@ -59,6 +60,7 @@ fn main() {
 mod ch12_05_working_with_environment_variables {
     use std::error::Error;
     use std::fs;
+    use helloworld::{search, search_case_insensitive};
 
     pub struct Config {
         pub query: String,
@@ -99,27 +101,5 @@ mod ch12_05_working_with_environment_variables {
         Ok(())
     }
 
-    pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-        let mut results = Vec::new();
 
-        for line in contents.lines() {
-            if line.contains(query) {
-                results.push(line);
-            }
-        }
-
-        results
-    }
-    pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-        let query = query.to_lowercase();
-        let mut results = Vec::new();
-
-        for line in contents.lines() {
-            if line.to_lowercase().contains(&query) {
-                results.push(line);
-            }
-        }
-
-        results
-    }
 }

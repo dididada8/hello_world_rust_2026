@@ -18,6 +18,31 @@ pub fn print_line_separator() {
 }
 
 
+pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+    let mut results = Vec::new();
+
+    for line in contents.lines() {
+        if line.contains(query) {
+            results.push(line);
+        }
+    }
+
+    results
+}
+pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+    let query = query.to_lowercase();
+    let mut results = Vec::new();
+
+    for line in contents.lines() {
+        if line.to_lowercase().contains(&query) {
+            results.push(line);
+        }
+    }
+
+    results
+}
+
+
 // 处理 catch_unwind 返回的结果
 // catch_unwind 返回 Result<T, Box<dyn Any + Send>>
 // T 是闭包的返回类型，这里是 ()
