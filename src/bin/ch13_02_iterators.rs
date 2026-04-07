@@ -20,15 +20,23 @@ fn demo_1() {
 
     fn iterator_change() {
         let mut v1 = vec![1, 2, 3];
-        let v1_iter = v1.iter_mut();
+        let v1_iter = v1.iter_mut(); //&mut v1_iter是一个可变迭代器，允许我们修改 v1 中的元素
         for item in v1_iter {
             *item += 50;
         }
     }
 
+    fn iterator_collect() {
+        let v1 = vec![1, 2, 3];
+        let v1_iter = v1.iter();
+        let v1_iter_collected: Vec<_> = v1_iter.map(|x | x + 1).collect();
+        assert_eq!(v1_iter_collected, vec![2, 3, 4]);
+    }
+
     iterator_demonstration();
     iterator_sum();
     iterator_change();
+    iterator_collect();
 }
 
 fn main() {
