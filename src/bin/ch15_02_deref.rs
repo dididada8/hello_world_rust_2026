@@ -1,4 +1,4 @@
-use helloworld::print_line_separator;
+use helloworld::{print_line_separator, print_type_of};
 use std::ops::Deref;
 
 fn demo_1() {
@@ -57,9 +57,37 @@ fn demo_2() {
     let y = MyBox::new(x);
     assert_eq!(5, x);
     assert_eq!(5, *y);
+    print_type_of(&y, Some("demo_2:myBox"));
+}
+fn demo_3() {
+    impl<T> Deref for MyBox<T> {
+        type Target = T;
+
+        fn deref(&self) -> &T {
+            &self.0
+        }
+    }
+
+    struct MyBox<T>(T);
+
+    impl<T> MyBox<T> {
+        fn new(x: T) -> MyBox<T> {
+            MyBox(x)
+        }
+    }
+
+    fn hello(name: &str) {
+        println!("Hello, {name}!");
+    }
+    let m = MyBox::new(String::from("Rust"));
+    hello(&m);
+    println!("{}", *m);
+    print_type_of(&m, Some("demo_3:myBox"));
 }
 fn main() {
     demo_1();
     print_line_separator();
     demo_2();
+    print_line_separator();
+    demo_3();
 }
