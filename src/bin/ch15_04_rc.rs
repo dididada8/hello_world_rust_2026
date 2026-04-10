@@ -1,3 +1,4 @@
+use std::rc;
 use helloworld::{print_line_separator, print_type_of};
 
 // demo_1：用 Box<List> 构建链表，演示单一所有权的限制
@@ -102,7 +103,6 @@ fn demo_2() {
     } // 借用结束，引用计数仍为 3
 
 
-
     // b 是 List（不是 Rc<List>），可以直接解构，转移 b 的所有权
     // 解构后 next 绑定了 b.next（即 Rc::clone(&a) 得到的那个 Rc 指针）
     if let Cons(val, next) = b {
@@ -125,9 +125,32 @@ fn demo_2() {
     //   Rc 保证只要引用计数 > 0，数据就不会被释放
     //   与 Box 不同，Rc 允许多个所有者；与 Arc 不同，Rc 不支持多线程
 }
+#[allow(unused_variables)]
+fn demo_3() {
+    #[allow(unused_variables, dead_code)]
+    enum List {
+        Cons(i32, Rc<List>),
+        Nil,
+    }
+    use List::{Cons, Nil};
+    use std::rc::Rc;
+    let a = Rc::new(Cons(5, Rc::new(Cons(10, Rc::new(Nil)))));
+    println!("count after creating a = {}", Rc::strong_count(&a));
+    let b = Cons(3, Rc::clone(&a));
+    println!("count after creating b = {}", Rc::strong_count(&a));
+    {
+        let c = Cons(4, Rc::clone(&a));
+        println!("count after creating c = {}", Rc::strong_count(&a));
+    }
+    println!("count after c goes out of scope = {}", Rc::strong_count(&a));
+    let d = Rc::new(Cons(4, Rc::new(b)));
+    println!("count after creating c = {}", Rc::strong_count(&a));
 
+}
 fn main() {
     demo_1();
     print_line_separator();
     demo_2();
+    print_line_separator();
+    demo_3();
 }
