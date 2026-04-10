@@ -69,8 +69,10 @@ fn demo_2() {
     let c = Cons(4, Rc::clone(&a));
 
     // 此时引用计数为 3
-    print_type_of(&a, Some("demo_2:Rc<List>"));
-
+    print_type_of(&a, Some("a typeDef:"));
+    print_type_of(&b, Some("b typeDef:"));
+    print_type_of(&c, Some("c typeDef:"));
+    println!();
     // ---- match 详解 ----
     //
     // 为什么不能直接 `match a`？
@@ -91,7 +93,7 @@ fn demo_2() {
             println!("a head = {val}"); // 输出：5（a 的头节点值）
             // next 是 &Rc<List>，指向堆上的 Cons(10, Rc::new(Nil))
             // 因为只是借用，引用计数仍为 3
-            print_type_of(&next, Some("demo_2:Rc<List>"));
+            print_type_of(&next, Some("a next typeDef==>"));
         }
         _ => {
             // 若 a 指向 Nil 则走这里（本例不会触发）
@@ -99,18 +101,22 @@ fn demo_2() {
         }
     } // 借用结束，引用计数仍为 3
 
+
+
     // b 是 List（不是 Rc<List>），可以直接解构，转移 b 的所有权
     // 解构后 next 绑定了 b.next（即 Rc::clone(&a) 得到的那个 Rc 指针）
     if let Cons(val, next) = b {
         println!("b head = {val}"); // 输出：3
-        print_type_of(&next, Some("demo_2:Rc<List>"));
+        print_type_of(&next, Some("b next typeDef"));
     } // next 离开作用域，b 持有的那份 Rc 被 drop，引用计数从 3 降为 2
+
 
     // 同理，c 解构后 next 持有 c.next 那份 Rc
     if let Cons(val, next) = c {
         println!("c head = {val}"); // 输出：4
-        print_type_of(&next, Some("demo_2:Rc<List>"));
+        print_type_of(&next, Some("c next typeDef"));
     } // next 离开作用域，c 持有的那份 Rc 被 drop，引用计数从 2 降为 1
+
 
     // demo_2 结束，a 离开作用域，引用计数从 1 降为 0，堆上数据被释放
     //
