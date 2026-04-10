@@ -47,7 +47,9 @@ fn demo_1() {
         }
     }
 
-    struct MockMessenger {
+  /*
+   //无法运行的版本
+   struct MockMessenger {
         sent_messages: Vec<String>,
     }
 
@@ -58,13 +60,12 @@ fn demo_1() {
             }
         }
     }
-
     impl Messenger for MockMessenger {
         fn send(&self, message: &str) {
-            self.sent_messages.push(String::from(message));
+            self.sent_messages.push(String::from(message)); //无法运行的原因
         }
     }
-
+*/
     fn it_sends_an_over_75_percent_warning_message() {
         let mock_messenger = MockMessenger::new();
         let mut limit_tracker = LimitTracker::new(&mock_messenger, 100);
