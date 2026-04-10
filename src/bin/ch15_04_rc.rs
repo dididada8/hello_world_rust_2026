@@ -1,4 +1,4 @@
-use helloworld::print_type_of;
+use helloworld::{print_line_separator, print_type_of};
 
 fn demo_1() {
     enum List {
@@ -11,7 +11,7 @@ fn demo_1() {
         match list {
             List::Cons(val, next) => {
                 print!("{} -> ", val); // 使用 i32 字段
-                print_list(next);      // 使用 Box<List> 字段（递归）
+                print_list(next); // 使用 Box<List> 字段（递归）
             }
             List::Nil => println!("Nil"),
         }
@@ -27,6 +27,43 @@ fn demo_1() {
     print_type_of(&b, Some("demo_1:List"));
 }
 
+fn demo_2() {
+    enum List {
+        Cons(i32, Rc<List>),
+        Nil,
+    }
+
+    use List::{Cons, Nil};
+    use std::rc::Rc;
+    let a = Rc::new(Cons(5, Rc::new(Cons(10, Rc::new(Nil)))));
+    let b = Cons(3, Rc::clone(&a));
+    let c = Cons(4, Rc::clone(&a));
+    print_type_of(&a, Some("demo_2:Rc<List>")); //输出：3
+
+    match a.as_ref() {
+        List::Cons(val, next) => {
+            println!("a head = {val}"); // 输出：5
+            print_type_of(&next, Some("demo_2:Rc<List>")); //输出：2
+        }
+        _ => {
+            println!("a is empty");
+        }
+    }
+
+    if let Cons(val, next) = b {
+        println!("b head = {val}"); // 输出：3
+        print_type_of(&next, Some("demo_2:Rc<List>")); //输出：2
+    }
+    if let Cons(val, next) = c {
+        println!("c head = {val}"); // 输出：4
+        print_type_of(&next, Some("demo_2:Rc<List>")); //输出：2
+    }
+    // Rc::clone(&a) 只是增加引用计数，并不会复制底层数据，所以 b 和 c 都共享 a 中的
+    // Cons(5, Rc::new(Cons(10, Rc::new(Nil)))，因此它们的 next 字段指向同一个
+}
+
 fn main() {
     demo_1();
+    print_line_separator();
+    demo_2();
 }
