@@ -143,9 +143,49 @@ fn demo_3() {
         println!("count after creating c = {}", Rc::strong_count(&a));
     }
     println!("count after c goes out of scope = {}", Rc::strong_count(&a));
-    let d = Rc::new(Cons(4, Rc::new(b)));
-    println!("count after creating c = {}", Rc::strong_count(&a));
+    let d = Rc::new(Cons(5, Rc::new(b)));
+    println!("count after creating d = {}", Rc::strong_count(&a));
 
+    // ---- 闭包遍历打印链表 ----
+    //
+    // 为什么不用递归闭包？
+    //   Rust 中闭包不能直接递归调用自身（闭包类型在定义时尚未确定）。
+    //   可以用循环代替递归，逻辑等价，且更符合 Rust 惯用法。
+    //
+    // 参数类型选 &List 而不是 &Rc<List>：
+    //   这样调用时传 d.as_ref() 即可，闭包内部只关心 List 的结构，
+    //   不关心外层是 Rc 还是 Box，更通用。
+    //
+    // 循环变量 node: &List 在每次迭代中更新为下一节点的引用：
+    //   next 是 &Rc<List>，next.as_ref() 返回 &List，完成指针推进。
+    let print_list = |start: &List| {
+        // node 始终指向当前待处理节点，初始为链表头
+        let mut node = start;
+        loop {
+            match node {
+                // 匹配到 Cons 节点：打印值，然后将 node 推进到下一节点
+                List::Cons(val, next) => {
+                    print!("{} -> ", val);
+                    // next: &Rc<List>，next.as_ref(): &List
+                    // 将 node 更新为下一个节点的引用，继续循环
+                    node = next.as_ref();
+                }
+                // 匹配到 Nil：打印终止符，退出循环
+                List::Nil => {
+                    println!("Nil");
+                    break;
+                }
+            }
+        }
+    };
+
+    // d 是 Rc<List>，d.as_ref() 将其转为 &List 传入闭包
+    // d 的结构：5 -> 3 -> 5 -> 10 -> Nil
+    //   d = Rc::new(Cons(5, Rc::new(b)))
+    //   b = Cons(3, Rc::clone(&a))
+    //   a = Rc::new(Cons(5, Rc::new(Cons(10, Rc::new(Nil)))))
+    print!("d = ");
+    print_list(d.as_ref()); // 输出：5 -> 3 -> 5 -> 10 -> Nil
 }
 fn main() {
     demo_1();
