@@ -4,4 +4,16 @@
 在任何给定时间，你 要么 有一个可变引用， 要么 有任意数量的不可变引用（但不能两者都有）。
 引用必须始终有效。
  */
-fn main() {}
+use helloworld::print_line_separator;
+
+fn demo_1() {
+
+
+
+
+}
+
+fn main() {
+    demo_1();
+    print_line_separator();
+}
