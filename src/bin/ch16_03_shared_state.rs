@@ -111,6 +111,20 @@ fn demo_2() {
         handle.join().unwrap();
     }
     // 此时 10 个子线程的 Arc clone 都已 drop，引用计数回到 1（只剩主线程的 counter）
+    //
+    // 为什么到这里 10 个 clone 都已 drop？
+    //   每个子线程的 Arc clone 是通过 move 闭包进入子线程的，
+    //   闭包本身就是子线程的"栈帧"，子线程函数体执行完毕时栈帧销毁，
+    //   闭包捕获的所有变量（包括 counter 这份 Arc clone）都会被 drop。
+    //
+    //   而 handle.join().unwrap() 会阻塞主线程，直到对应子线程完全结束。
+    //   上面的 for 循环对全部 10 个 handle 都调用了 join()，
+    //   所以执行到这一行时，10 个子线程都已经结束 → 10 份 Arc clone 都已 drop。
+    //
+    //   时间线：
+    //     子线程结束（闭包退出）→ counter clone drop → 引用计数 -1
+    //     join() 返回           → 确认该线程已结束
+    //     10 次 join() 全部返回 → 10 份 clone 全部 drop → 引用计数从 11 降回 1
 
     // counter.lock().unwrap()：最后一次获取锁，读取最终计数值
     // *(...) 解引用 MutexGuard 得到 i32
