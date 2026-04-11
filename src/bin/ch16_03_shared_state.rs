@@ -1,4 +1,6 @@
-use std::sync::Mutex;
+use helloworld::print_line_separator;
+use std::sync::{Arc, Mutex};
+use std::thread;
 
 fn demo_1() {
     // Mutex::new(5) 创建一个互斥锁，将数据 5 包裹在锁内
@@ -8,7 +10,8 @@ fn demo_1() {
     //   - Rust 通过 MutexGuard 的 Drop 机制自动释放锁，不会忘记解锁
     let m = Mutex::new(5);
 
-    { // 内层作用域：用于控制锁的持有范围
+    {
+        // 内层作用域：用于控制锁的持有范围
         // m.lock() 尝试获取互斥锁：
         //   - 若锁当前被其他线程持有 → 阻塞，直到锁被释放
         //   - 若锁可用 → 立即获取，返回 LockResult<MutexGuard<i32>>
@@ -28,9 +31,8 @@ fn demo_1() {
         // num 的类型是 MutexGuard<i32>，*num 通过 DerefMut 得到 &mut i32
         // 将内部值从 5 改为 6
         *num = 6;
-
     } // num（MutexGuard）在此离开作用域，自动调用 Drop，锁被释放
-      // 释放后其他线程或后续代码才能再次获取锁
+    // 释放后其他线程或后续代码才能再次获取锁
 
     // 此时锁已释放，m 可以被正常访问（Debug 格式打印）
     // 输出：m = Mutex { data: 6, poisoned: false, .. }
@@ -39,6 +41,29 @@ fn demo_1() {
     println!("m = {m:?}");
 }
 
+fn demo_2() {
+    let counter = Arc::new(Mutex::new(0));
+    let mut handles = vec![];
+
+    for _ in 0..10 {
+        let counter = Arc::clone(&counter);
+        let handle = thread::spawn(move || {
+            let mut num = counter.lock().unwrap();
+
+            *num += 1;
+        });
+        handles.push(handle);
+    }
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
+
+    println!("Result: {}", *counter.lock().unwrap());
+}
+
 fn main() {
     demo_1();
+    print_line_separator();
+    demo_2();
 }
