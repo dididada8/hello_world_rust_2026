@@ -84,14 +84,41 @@ fn demo_4() {
 fn demo_5() {
     let (tx, rx) = mpsc::channel();
 
-    for i in 0..5 {
-        let thread_tx = tx.clone(); // 克隆发送端，允许多个生产者
+    // 错误1：原代码 `let txs = &vec![tx.clone(), tx.clone(), tx]`
+    //   - vec![...] 是临时值，&vec![...] 是临时引用，离开语句后临时值销毁
+    //   - txs[i] 试图从 &Vec 中 move 出 Sender<String>
+    //   - Sender<String> 不是 Copy 类型，不能从引用中 move → 编译报错
+    //
+    // 修复：在循环内直接 clone()，每次迭代产生一个独立的发送端
+    for i in 0..3 {
+        // 每次循环 clone 一份 tx，move 进闭包，各线程持有独立的发送端
+        // Sender::clone() 不复制信道数据，只增加发送端计数
+        let t = tx.clone();
         thread::spawn(move || {
-            let val = format!("hi from thread {i}");
-            thread_tx.send(val).unwrap();
+            let vals = vec![
+                String::from(format!("more      <---{i}")),
+                String::from(format!("messages  <---{i}")),
+                String::from(format!("for       <---{i}")),
+                String::from(format!("you       <---{i}")),
+            ];
+
+            for val in vals {
+                t.send(val).unwrap();
+                thread::sleep(Duration::from_millis(200));
+            }
+            // t 离开作用域，clone 出来的这份发送端被 drop，信道发送端计数 -1
         });
     }
 
+    // 错误2：原代码没有 drop(tx)
+    //   mpsc 信道在所有发送端都 drop 后才关闭
+    //   若不 drop 原始 tx，即使 3 个子线程都结束，信道仍未关闭（原始 tx 还活着）
+    //   `for received in rx` 会永远阻塞，程序不会退出
+    //
+    // 修复：手动 drop 原始 tx，使信道在所有 clone 端结束后正常关闭
+    drop(tx);
+
+    // rx 作为迭代器：每次 recv 一条消息，所有发送端都 drop 后迭代结束
     for received in rx {
         println!("Got: {received}");
     }
