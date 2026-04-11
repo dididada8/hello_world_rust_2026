@@ -52,6 +52,7 @@ fn demo_2() {
 fn demo_3() {
     async fn page_title(url: &str) -> (Option<String>, &str) {
         let text = trpl::get(url).await.text().await;
+
         let title = Html::parse(&text)
             .select_first("title")
             .map(|title| title.inner_html());
@@ -64,6 +65,7 @@ fn demo_3() {
         let title_fut_1 = page_title(url_1);
         let title_fut_2 = page_title(url_2);
 
+        // trpl::select它返回一个值来表明传递给它的哪个 future 先完成。
         let (url, title) = match trpl::select(title_fut_1, title_fut_2).await {
             trpl::Either::Left((title, url)) => (url, title),
             trpl::Either::Right((title, url)) => (url, title),
