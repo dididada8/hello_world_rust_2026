@@ -75,7 +75,7 @@ fn demo_4() {
             thread::sleep(Duration::from_secs(1));
         }
     });
-
+    
     for received in rx {
         println!("Got: {received}");
     }
