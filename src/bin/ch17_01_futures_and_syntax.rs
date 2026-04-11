@@ -1,5 +1,5 @@
-use trpl::Html;
 use helloworld::print_line_separator;
+use trpl::Html;
 
 fn demo_1() {
     async fn page_title(url: &str) -> Option<String> {
@@ -18,7 +18,7 @@ fn demo_1() {
     });
 }
 
-fn demo_2(){
+fn demo_2() {
     fn page_title(url: &str) -> impl Future<Output = Option<String>> {
         // async move 块：将此块定义为一个异步块，并通过 move 关键字将外部变量（此处为 url）的所有权
         // 转移进来。由于普通函数（非 async fn）不能直接 .await，所以用 async 块来包裹异步逻辑。
@@ -46,14 +46,40 @@ fn demo_2(){
         let title = page_title(url).await;
         println!("{:?}", title);
     });
-
-
-
     println!("{}", url);
+}
+
+fn demo_3() {
+    async fn page_title(url: &str) -> (Option<String>, &str) {
+        let text = trpl::get(url).await.text().await;
+        let title = Html::parse(&text)
+            .select_first("title")
+            .map(|title| title.inner_html());
+        (title, url)
+    }
+
+    let url_1 = "https://baidu.com";
+    let url_2 = "https://google.com";
+    trpl::block_on(async {
+        let title_fut_1 = page_title(url_1);
+        let title_fut_2 = page_title(url_2);
+
+        let (url, title) = match trpl::select(title_fut_1, title_fut_2).await {
+            trpl::Either::Left((title, url)) => (url, title),
+            trpl::Either::Right((title, url)) => (url, title),
+        };
+
+        match title {
+            Some(title) => println!("The title for {url} was {title}"),
+            None => println!("{url} had no title"),
+        }
+    });
 }
 
 fn main() {
     demo_1();
     print_line_separator();
     demo_2();
+    print_line_separator();
+    demo_3();
 }
