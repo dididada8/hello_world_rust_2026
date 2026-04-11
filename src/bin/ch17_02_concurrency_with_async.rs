@@ -23,7 +23,7 @@ fn demo_1() {
     //   返回 JoinHandle<T>，稍后可调用 .join() 等待其结束。
     let channel = thread::spawn(|| {
         for i in 1..=5 {
-            println!("c_hi number {i} from the channel thread!");
+            println!("      c_hi number {i} from the channel thread!");
             // 阻塞当前 OS 线程 500ms（只阻塞这个线程，不影响其他线程）
             std::thread::sleep(std::time::Duration::from_millis(500));
         }
@@ -39,7 +39,7 @@ fn demo_1() {
         //   执行到 .await 暂停时，运行时切换去执行 main task，反之亦然。
         //   这是"协作式并发"：任务主动在 .await 处让出 CPU，而非被抢占。
         let handle = trpl::spawn_task(async {
-            for i in 1..=5 {
+            for i in 1..=10 {
                 println!("hi number {i} from the spawned task!");
                 // trpl::sleep 是异步版 sleep：挂起当前任务并让出运行时，
                 // 让其他任务（main task）得以执行，500ms 后再恢复此任务。
@@ -60,6 +60,7 @@ fn demo_1() {
         // 注意：若此时 spawned task 还未完成，它会被直接丢弃（不等待）。
         // 如需等待，应在此处调用 handle.await。
         print_type_of(&handle, Some("demo_1:JoinHandle<()>"));
+        handle.await.unwrap();//
     });
     // block_on 返回后，异步运行时已结束。
 
