@@ -33,10 +33,14 @@ fn demo_2(){
         }
     }
     let url = "https://baidu.com";
+
+    // 1#
     trpl::run(async {
         let title = page_title(url).await;
         println!("{:?}", title);
     });
+    
+    println!("{}", url);
 }
 
 fn main() {
