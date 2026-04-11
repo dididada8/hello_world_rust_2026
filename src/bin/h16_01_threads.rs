@@ -80,6 +80,23 @@ fn demo_4() {
         println!("Got: {received}");
     }
 }
+
+fn demo_5() {
+    let (tx, rx) = mpsc::channel();
+
+    for i in 0..5 {
+        let thread_tx = tx.clone(); // 克隆发送端，允许多个生产者
+        thread::spawn(move || {
+            let val = format!("hi from thread {i}");
+            thread_tx.send(val).unwrap();
+        });
+    }
+
+    for received in rx {
+        println!("Got: {received}");
+    }
+}
+
 fn main() {
     demo_1();
     print_line_separator();
@@ -88,4 +105,6 @@ fn main() {
     demo_3();
     print_line_separator();
     demo_4();
+    print_line_separator();
+    demo_5();
 }
