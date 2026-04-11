@@ -662,6 +662,7 @@ name = "helloworld"
 version = "0.1.0"
 dependencies = [
  "crossterm",
+ "futures",
  "rand 0.10.0",
  "serde",
  "serde_json",

@@ -39,7 +39,16 @@ fn demo_2(){
         let title = page_title(url).await;
         println!("{:?}", title);
     });
-    
+
+    // 2#
+    let rt = tokio::runtime::Runtime::new().unwrap();
+    rt.block_on(async {
+        let title = page_title(url).await;
+        println!("{:?}", title);
+    });
+
+
+
     println!("{}", url);
 }
 
