@@ -8,7 +8,7 @@ fn demo_1() {
             tx.send(val).unwrap();
             trpl::sleep(std::time::Duration::from_millis(500)).await;
         }
-
+        drop(tx);
         while let Some(value) = rx.recv().await {
             println!("received: {}", value);
         }
