@@ -113,20 +113,43 @@ fn demo_2() {
     });
 }
 
-fn demo_3(){
+fn demo_3() {
+    // demo_3 演示异步 channel：发送方和接收方并发运行。
+    //
+    // 原先的写法（顺序）：
+    //   先跑完整个发送循环，再跑接收循环 → 没有任何并发，
+    //   而且 rx.recv() 会永久阻塞（tx 还在作用域内，channel 未关闭）。
+    //
+    // 修复后的写法（并发）：
+    //   把 tx 移入 tx_fut（async move），rx 留在 rx_fut，
+    //   用 trpl::join 同时驱动两个 Future：
+    //     - 每隔 500ms，tx_fut 发送一条消息并让出控制权；
+    //     - rx_fut 在 recv().await 处等待，一旦有消息就打印，再等下一条；
+    //     - tx_fut 完成后 tx 被 drop，channel 关闭，rx.recv() 返回 None，
+    //       rx_fut 的 while 循环随之结束，join 完成。
     trpl::block_on(async {
         let (tx, mut rx) = trpl::channel();
 
         let vals = vec!["hi", "from", "the", "future"];
 
-        for val in vals {
-            tx.send(val).unwrap();
-            trpl::sleep(std::time::Duration::from_millis(500)).await;
-        }
+        // 发送方 Future：持有 tx 的所有权（move），逐条发送并 sleep 让出控制权。
+        // tx_fut 结束时 tx 被 drop → channel 关闭 → rx.recv() 最终返回 None。
+        let tx_fut = async move {
+            for val in vals {
+                tx.send(val).unwrap();
+                trpl::sleep(std::time::Duration::from_millis(500)).await;
+            }
+        };
 
-        while let Some(value) = rx.recv().await {
-            println!("received: {}", value);
-        }
+        // 接收方 Future：持续接收直到 channel 关闭（recv 返回 None）。
+        let rx_fut = async {
+            while let Some(value) = rx.recv().await {
+                println!("received: {}", value);
+            }
+        };
+
+        // 同时驱动两个 Future，直到两者都完成。
+        trpl::join(tx_fut, rx_fut).await;
     });
 }
 
