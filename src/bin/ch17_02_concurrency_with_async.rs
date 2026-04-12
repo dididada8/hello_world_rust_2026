@@ -115,12 +115,6 @@ fn demo_2() {
 
 fn demo_3() {
     // demo_3 演示异步 channel：发送方和接收方并发运行。
-    //
-    // 原先的写法（顺序）：
-    //   先跑完整个发送循环，再跑接收循环 → 没有任何并发，
-    //   而且 rx.recv() 会永久阻塞（tx 还在作用域内，channel 未关闭）。
-    //
-    // 修复后的写法（并发）：
     //   把 tx 移入 tx_fut（async move），rx 留在 rx_fut，
     //   用 trpl::join 同时驱动两个 Future：
     //     - 每隔 500ms，tx_fut 发送一条消息并让出控制权；
