@@ -112,8 +112,28 @@ fn demo_2() {
         trpl::join(fut1, fut2).await;
     });
 }
+
+fn demo_3(){
+    trpl::block_on(async {
+        let (tx, mut rx) = trpl::channel();
+
+        let vals = vec!["hi", "from", "the", "future"];
+
+        for val in vals {
+            tx.send(val).unwrap();
+            trpl::sleep(std::time::Duration::from_millis(500)).await;
+        }
+
+        while let Some(value) = rx.recv().await {
+            println!("received: {}", value);
+        }
+    });
+}
+
 fn main() {
     demo_1();
     print_line_separator();
     demo_2();
+    print_line_separator();
+    demo_3();
 }
