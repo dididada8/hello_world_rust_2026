@@ -69,7 +69,51 @@ fn demo_1() {
     channel.join().unwrap();
 }
 
+fn demo_2() {
+    // demo_2 与 demo_1 的关键区别：
+    // demo_1 用 spawn_task 创建独立任务（需要 handle.await 才能等待），
+    // demo_2 直接用 trpl::join 把两个 Future 组合在一起同时驱动，
+    // 不需要单独的 JoinHandle，更适合"我有几个 Future，想同时等它们都完成"的场景。
+    trpl::block_on(async {
+        // fut1/fut2 只是普通变量，存储的是尚未执行的 Future（惰性）。
+        // 此时没有任何代码运行，只是描述了"将来要做什么"。
+        let fut1 = async {
+            for i in 1..=5 {
+                // ── 为什么 fut1、fut2 会交替打印？──────────────────────────────
+                // 执行到这里打印后，紧接着遇到下一行的 .await（trpl::sleep）。
+                // .await 会挂起 fut1，把控制权交还给运行时（tokio executor）。
+                // 运行时发现 fut2 可以继续运行（它也在等 sleep 计时），
+                // 于是切换去 poll fut2，fut2 打印自己的那行，再次 .await 挂起。
+                // 500ms 后两个 sleep 先后到期，运行时依次唤醒它们继续执行。
+                // 这就形成了"fut1 打印 → fut2 打印 → fut1 打印 → ..."的交替输出。
+                // 本质：每个 .await 都是一个"让出点"，运行时在让出点之间切换任务。
+                println!("hi number {i} from the first task!");
+                // sleep 500ms 并让出控制权，运行时趁机去推进 fut2
+                trpl::sleep(std::time::Duration::from_millis(500)).await;
+            }
+            // fut1 共循环 5 次后结束，但 trpl::join 会继续等待 fut2 跑完
+        };
+
+        let fut2 = async {
+            for i in 1..=10 {
+                println!(" hi number {i} from the second task!");
+                // 同上，sleep 500ms 并让出控制权，运行时趁机去推进 fut1
+                trpl::sleep(std::time::Duration::from_millis(500)).await;
+            }
+            // fut2 共循环 10 次后结束
+        };
+
+        // trpl::join(fut1, fut2)：同时驱动两个 Future，直到【两个都完成】才返回。
+        // 与 trpl::select 的区别：
+        //   - select：谁先完成返回谁，另一个被丢弃（竞速）
+        //   - join：  必须等两个都完成才返回（汇合）
+        // 因为 fut2 循环 10 次而 fut1 只有 5 次，所以 fut1 结束后
+        // join 会继续驱动 fut2 跑完剩余的 5 次，总耗时约 10 × 500ms = 5s。
+        trpl::join(fut1, fut2).await;
+    });
+}
 fn main() {
     demo_1();
     print_line_separator();
+    demo_2();
 }
