@@ -63,6 +63,38 @@ fn demo_2() {
     });
 }
 
+fn demo_3() {
+    trpl::block_on(async {
+        let fut1 = async {
+            println!("'c', started.");
+            slow("'c'", std::time::Duration::from_millis(30));
+            println!("'a' ran for 30ms");
+            trpl::yield_now().await;
+            slow("'c'", std::time::Duration::from_millis(10));
+            println!("'c', ran for 10ms");
+            trpl::yield_now().await;
+            slow("'c'", std::time::Duration::from_millis(20));
+            println!("'c' , for 20ms");
+            println!("'c' finished.");
+        };
+
+        let fut2 = async {
+            println!("'d' started.");
+            slow("'d'", std::time::Duration::from_millis(75));
+            println!("'d' ran for 75ms");
+            trpl::yield_now().await;
+            slow("'d'", std::time::Duration::from_millis(10));
+            println!("'d' ran for 10ms");
+            trpl::yield_now().await;
+            slow("'d'", std::time::Duration::from_millis(15));
+            println!("'d' ran for 15ms");
+            trpl::yield_now().await;
+        };
+
+        trpl::select(fut1, fut2).await;
+    });
+}
+
 fn main() {
     println!("=== demo_1: 使用阻塞 sleep，fut2 无法启动 ===");
     demo_1();
@@ -71,4 +103,6 @@ fn main() {
     println!("=== demo_2: 使用异步 sleep，fut1 和 fut2 交替执行 ===");
     demo_2();
     print_line_separator();
+    println!("=== demo_3: 使用 yield_now，fut1 和 fut2 交替执行 ===");
+    demo_3();
 }
