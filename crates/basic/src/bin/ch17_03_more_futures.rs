@@ -168,12 +168,19 @@ fn demo_3() {
 
 fn main() {
     println!("=== demo_1: 使用阻塞 sleep，fut2 无法启动 ===");
+    let t = std::time::Instant::now();
     demo_1();
+    println!("demo_1 耗时: {:?}", t.elapsed());
     print_line_separator();
 
     println!("=== demo_2: 使用异步 sleep，fut1 和 fut2 交替执行 ===");
+    let t = std::time::Instant::now();
     demo_2();
+    println!("demo_2 耗时: {:?}", t.elapsed());
     print_line_separator();
+
     println!("=== demo_3: 使用 yield_now，fut1 和 fut2 交替执行 ===");
+    let t = std::time::Instant::now();
     demo_3();
+    println!("demo_3 耗时: {:?}", t.elapsed());
 }
