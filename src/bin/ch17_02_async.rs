@@ -1,3 +1,5 @@
+use helloworld::print_line_separator;
+
 // 演示：单个 async 块内，发送与接收是顺序执行的，不存在并发。
 //
 // 【核心原因】
@@ -45,6 +47,98 @@ fn demo_1() {
     });
 }
 
+fn demo_2() {
+    trpl::block_on(async {
+        let (tx, mut rx) = trpl::channel();
+
+        let tx_fut = async move {
+            let vals = vec!["hi", "from", "the", "future"];
+            for val in vals {
+                tx.send(val).unwrap();
+                trpl::sleep(std::time::Duration::from_millis(500)).await;
+            }
+        };
+
+        let rx_fut = async {
+            while let Some(value) = rx.recv().await {
+                println!("received: {}", value);
+            }
+        };
+
+        trpl::join(tx_fut, rx_fut).await;
+    });
+}
+
+// 演示：两个发送端 + 一个接收端，用 trpl::join! 并发运行。
+//
+// 【为什么不需要手动 drop(tx) 程序也能正常结束？】
+//
+// channel 的关闭条件：**所有 Sender（tx 及其 clone）全部被 drop**，rx.recv() 才会返回 None。
+//
+// 这里 tx 和 tx1 都通过 `async move` 被"移动"进各自的 Future：
+//   - tx1  →  tx1_fut（async move）
+//   - tx   →  tx_fut （async move）
+//
+// 移动之后，外层 async 块里**不再持有任何 tx / tx1 的所有权**。
+// 当 tx1_fut / tx_fut 各自跑完（async 块执行到末尾），Rust 自动 drop
+// 其局部变量——和普通函数返回时 drop 局部变量完全一样。
+//
+// 时序：
+//   tx1_fut 跑完 → tx1 被 drop
+//   tx_fut  跑完 → tx  被 drop   ← 此时两个 Sender 均已 drop，channel 关闭
+//   rx_fut 的 rx.recv().await 返回 None → while 循环结束 → rx_fut 完成
+//   trpl::join! 三个 Future 全部完成，返回
+//
+// 对比 demo_1：tx 留在外层 async 块的作用域里（未 move），与 rx 的 while
+// 循环处于同一作用域，必须显式 drop(tx) 才能关闭 channel；否则 while 循环
+// 永远等不到 None，程序会一直挂着。
+fn demo_3() {
+    trpl::block_on(async {
+        let (tx, mut rx) = trpl::channel();
+
+        // tx1 是 tx 的 clone，代表第二个发送端（每 500ms 发一条）。
+        // async move 把 tx1 的所有权转移进这个 Future；
+        // tx1_fut 跑完时，tx1 自动被 drop。
+        let tx1 = tx.clone();
+        let tx1_fut = async move {
+            let vals = vec!["hi", "from", "the", "future"];
+            for val in vals {
+                tx1.send(val).unwrap();
+                trpl::sleep(std::time::Duration::from_millis(500)).await;
+            }
+            // 此处 async 块结束，tx1 离开作用域，自动 drop
+        };
+
+        // tx 是原始发送端（每 1000ms 发一条）。
+        // async move 把 tx 的所有权转移进这个 Future；
+        // tx_fut 跑完时，tx 自动被 drop。
+        // 两个 Sender 都 drop 后，channel 关闭。
+        let tx_fut = async move {
+            let vals = vec!["more", "messages", "for", "you"];
+            for val in vals {
+                tx.send(val).unwrap();
+                trpl::sleep(std::time::Duration::from_millis(1000)).await;
+            }
+            // 此处 async 块结束，tx 离开作用域，自动 drop
+            // → 两个 Sender 均已 drop → channel 关闭
+        };
+
+        // rx.recv().await 在 channel 关闭且缓冲区清空后返回 None，
+        // while 循环自然结束，无需外部干预。
+        let rx_fut = async {
+            while let Some(value) = rx.recv().await {
+                println!("received: {}", value);
+            }
+        };
+
+        trpl::join!(tx1_fut, tx_fut, rx_fut);
+    });
+}
+
 fn main() {
     demo_1();
+    print_line_separator();
+    demo_2();
+    print_line_separator();
+    demo_3();
 }
