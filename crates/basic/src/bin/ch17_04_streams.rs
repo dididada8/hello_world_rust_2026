@@ -1,5 +1,6 @@
-use std::time::Duration;
 use futures::StreamExt;
+use helloworld::print_line_separator;
+use std::time::Duration;
 
 // demo_1: 最基础的 Stream 消费模型（完整注释版）
 //
@@ -96,8 +97,15 @@ fn demo_4_batching_chunks() {
 }
 
 fn main() {
+    println!("===demo 1====");
     demo_1();
+    print_line_separator();
+    println!("===demo 2====");
     demo_2_filter_map_validation();
+    print_line_separator();
+    println!("===demo 3====");
     demo_3_bounded_concurrency();
+    print_line_separator();
+    println!("===demo 4====");
     demo_4_batching_chunks();
 }
