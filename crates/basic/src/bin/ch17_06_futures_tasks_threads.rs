@@ -164,6 +164,158 @@ fn demo_3() {
     });
 }
 
+#[allow(dead_code)]
+fn demo_4() {
+    // demo_4: 阻塞日志源(thread) + async 批量写入(模拟)。
+    //
+    // 生产环境映射：
+    // - 线程侧：对接只能阻塞读取的日志源（文件 tail、串口、遗留 SDK）。
+    // - async 侧：按“条数/超时”批处理后写数据库或消息队列。
+    let (tx, mut rx) = trpl::channel();
+
+    let producer = thread::spawn(move || {
+        for i in 1..=10 {
+            thread::sleep(Duration::from_millis(120)); // 模拟阻塞读取
+            let line = format!("log-{i} at {}", Local::now().format("%H:%M:%S%.3f"));
+            if tx.send(line).is_err() {
+                break;
+            }
+        }
+    });
+
+    let rt = Builder::new_multi_thread()
+        .worker_threads(2)
+        .enable_all()
+        .build()
+        .unwrap();
+
+    rt.block_on(async move {
+        let mut batch = Vec::new();
+        let mut batch_id = 1usize;
+
+        loop {
+            // 250ms 内没新日志就触发一次“超时刷盘”。
+            match tokio::time::timeout(Duration::from_millis(250), rx.recv()).await {
+                Ok(Some(line)) => {
+                    batch.push(line);
+                    if batch.len() >= 3 {
+                        println!("flush batch-{batch_id}: {:?}", batch);
+                        batch.clear();
+                        batch_id += 1;
+                    }
+                }
+                Ok(None) => {
+                    if !batch.is_empty() {
+                        println!("flush final batch-{batch_id}: {:?}", batch);
+                    }
+                    break;
+                }
+                Err(_) => {
+                    if !batch.is_empty() {
+                        println!("flush timeout batch-{batch_id}: {:?}", batch);
+                        batch.clear();
+                        batch_id += 1;
+                    }
+                }
+            }
+        }
+    });
+
+    producer.join().unwrap();
+}
+
+#[allow(dead_code)]
+fn demo_5() {
+    // demo_5: async 请求编排 + blocking pool 做 CPU 密集计算。
+    //
+    // 生产环境映射：
+    // - async 侧负责接请求、并发编排、聚合结果。
+    // - 线程池侧负责签名/压缩/加解密/图像处理等 CPU 重任务。
+    let rt = Builder::new_multi_thread()
+        .worker_threads(2)
+        .enable_all()
+        .build()
+        .unwrap();
+
+    rt.block_on(async move {
+        let jobs = vec![101u64, 102, 103, 104];
+        let mut handles = Vec::new();
+
+        for job_id in jobs {
+            let handle = tokio::task::spawn_blocking(move || {
+                let mut acc = job_id;
+                for i in 0..2_000_000u64 {
+                    // 人工构造 CPU 计算，模拟签名/压缩等开销。
+                    acc = acc.wrapping_mul(1_664_525).wrapping_add(i ^ 1_013_904_223);
+                }
+                let thread_id = thread::current().id();
+                (job_id, acc, thread_id)
+            });
+            handles.push(handle);
+        }
+
+        let results = futures::future::join_all(handles).await;
+        for result in results {
+            let (job_id, checksum, thread_id) = result.unwrap();
+            println!("job {job_id} done on {:?}, checksum={checksum}", thread_id);
+        }
+    });
+}
+
+#[allow(dead_code)]
+fn demo_6() {
+    // demo_6: 回调线程推送事件 + async 并发消费并限流。
+    //
+    // 生产环境映射：
+    // - 线程侧：第三方 SDK 通过阻塞回调不断推送事件。
+    // - async 侧：将事件 fan-out 到异步 I/O（HTTP/DB），并控制 in-flight 上限防止打爆下游。
+    let (tx, mut rx) = trpl::channel();
+
+    let callback_thread = thread::spawn(move || {
+        for event_id in 1..=8 {
+            thread::sleep(Duration::from_millis(80)); // 模拟阻塞回调间隔
+            if tx
+                .send(format!("event-{event_id} from callback thread"))
+                .is_err()
+            {
+                break;
+            }
+        }
+    });
+
+    let rt = Builder::new_multi_thread()
+        .worker_threads(2)
+        .enable_all()
+        .build()
+        .unwrap();
+
+    rt.block_on(async move {
+        let mut in_flight = tokio::task::JoinSet::new();
+        let max_in_flight = 3usize;
+
+        while let Some(event) = rx.recv().await {
+            in_flight.spawn(async move {
+                // 模拟异步 I/O 处理（如调用下游服务）。
+                tokio::time::sleep(Duration::from_millis(220)).await;
+                format!("processed: {event}")
+            });
+
+            // 并发上限：达到阈值就先等待一个任务完成，形成背压。
+            if in_flight.len() >= max_in_flight {
+                let done = in_flight.join_next().await.unwrap().unwrap();
+                println!("{done}");
+            }
+        }
+
+        // 通道关闭后，等待剩余异步任务结束。
+        while let Some(done) = in_flight.join_next().await {
+            println!("{}", done.unwrap());
+        }
+    });
+
+    callback_thread.join().unwrap();
+}
+
 fn main() {
     println!("===demo 1====");
     demo_1();
@@ -174,4 +326,12 @@ fn main() {
     println!("===demo 3====");
     demo_3();
     print_line_separator();
+
+    // 下面是更贴近生产的混合模式示例，按需开启：
+    // demo_4();
+    // print_line_separator();
+    // demo_5();
+    // print_line_separator();
+    // demo_6();
+    // print_line_separator();
 }
