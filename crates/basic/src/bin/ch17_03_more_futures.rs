@@ -140,6 +140,32 @@ fn demo_3() {
     });
 }
 
+
+fn demo_4() {
+    async fn timeout<F, T>(future_to_try: F, max_time: std::time::Duration) -> Result<T, std::time::Duration>
+    where
+        F: std::future::Future<Output = T>,
+    {
+        let timer = trpl::sleep(max_time);
+        match trpl::select(future_to_try, timer).await {
+            trpl::Either::Left(output) => Ok(output),
+            trpl::Either::Right(_) => Err(max_time),
+        }
+    }
+
+    trpl::block_on(async {
+        let slow = async {
+            trpl::sleep(std::time::Duration::from_secs(5)).await;
+            "Finally finished!"
+        };
+
+        match timeout(slow, std::time::Duration::from_secs(2)).await {
+            Ok(message) => println!("Succeeded with: {}", message),
+            Err(duration) => println!("Failed after {} seconds", duration.as_secs()),
+        }
+    });
+}
+
 // ══════════════════════════════════════════════════════════════════
 // 三种并发方式对比
 // ══════════════════════════════════════════════════════════════════
@@ -183,4 +209,10 @@ fn main() {
     let t = std::time::Instant::now();
     demo_3();
     println!("demo_3 耗时: {:?}", t.elapsed());
+
+    print_line_separator();
+    println!("=== demo_4:");
+    let t = std::time::Instant::now();
+    demo_4();
+    println!("demo_4 耗时: {:?}", t.elapsed());
 }
