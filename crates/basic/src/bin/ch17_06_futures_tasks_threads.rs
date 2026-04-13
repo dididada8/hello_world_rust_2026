@@ -2,6 +2,7 @@ use chrono::Local;
 use helloworld::print_line_separator;
 use std::thread;
 use std::time::Duration;
+use tokio::runtime::Builder;
 
 #[allow(dead_code)]
 fn demo_1() {
@@ -102,11 +103,75 @@ fn demo_2() {
     }
 }
 
+fn demo_3() {
+    // demo_3: 使用线程池（tokio blocking pool）实现“多生产者 + 单 async 消费者”。
+    //
+    // 为什么这里要用 blocking pool：
+    // 1) 生产者逻辑里包含 thread::sleep(...) 这类“阻塞调用”。
+    // 2) 若阻塞调用运行在 async worker 线程上，会占住 worker，降低 runtime 调度能力。
+    // 3) spawn_blocking 会把这类任务转移到专用阻塞线程池，让 async worker 继续处理 await 任务。
+    // 4) 结果是：阻塞生产者与异步消费者互不拖累，吞吐和响应性更稳定。
+    let (tx, mut rx) = trpl::channel();
+
+    let producer_count = 3;
+    let messages_per_producer = 4;
+
+    // 创建多线程 runtime；spawn_blocking 的任务会进入专用阻塞线程池执行。
+    let rt = Builder::new_multi_thread()
+        .worker_threads(2)
+        .enable_all()
+        .build()
+        .unwrap();
+
+    rt.block_on(async move {
+        let mut producer_handles = Vec::with_capacity(producer_count);
+
+        for producer_id in 1..=producer_count {
+            let tx = tx.clone();
+            // 生产者是“阻塞风格”代码（sleep + 普通循环），放进 blocking pool 更合适。
+            let handle = tokio::task::spawn_blocking(move || {
+                for n in 1..=messages_per_producer {
+                    let thread_id = thread::current().id();
+                    let now = Local::now();
+                    let msg = format!("P{producer_id} -> message {n}   {:?} {now}", thread_id);
+
+                    if tx.send(msg).is_err() {
+                        break;
+                    }
+
+                    let delay_ms = 150 * producer_id as u64;
+                    thread::sleep(Duration::from_millis(delay_ms));
+                }
+            });
+            producer_handles.push(handle);
+        }
+
+        // 丢弃主任务持有的 tx，确保全部生产者结束后通道能关闭。
+        drop(tx);
+
+        // 单个 async 接收者持续消费，直到通道关闭。
+        let receiver = tokio::spawn(async move {
+            while let Some(msg) = rx.recv().await {
+                println!("received: {msg}");
+            }
+            println!("receiver done: all producers finished and channel closed");
+        });
+
+        for handle in producer_handles {
+            handle.await.unwrap();
+        }
+        receiver.await.unwrap();
+    });
+}
+
 fn main() {
     println!("===demo 1====");
     demo_1();
     print_line_separator();
     println!("===demo 2====");
     demo_2();
+    print_line_separator();
+    println!("===demo 3====");
+    demo_3();
     print_line_separator();
 }
