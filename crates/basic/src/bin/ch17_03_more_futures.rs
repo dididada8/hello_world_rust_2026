@@ -141,27 +141,54 @@ fn demo_3() {
 }
 
 
+// demo_4：用 trpl::select 实现一个通用的异步超时工具函数（timeout）。
+// 核心思路：同时竞争"业务 future"和"计时器 future"，
+//   - 业务 future 先完成 → 返回 Ok(结果)
+//   - 计时器 future 先完成 → 返回 Err(超时时长)，业务 future 被丢弃
 fn demo_4() {
+    // ── timeout 函数定义 ────────────────────────────────────────────────────
+    //
+    // 泛型参数：
+    //   F : 任意实现了 Future<Output = T> 的类型（业务 future）
+    //   T : 业务 future 的输出类型
+    //
+    // 返回值：Result<T, Duration>
+    //   Ok(T)        — 在截止时间内完成，携带业务结果
+    //   Err(Duration)— 超时，携带超时时长（便于调用方记录或上报）
     async fn timeout<F, T>(future_to_try: F, max_time: std::time::Duration) -> Result<T, std::time::Duration>
     where
         F: std::future::Future<Output = T>,
     {
+        // 创建一个在 max_time 后就绪的计时器 future（Output = ()）
         let timer = trpl::sleep(max_time);
+
+        // trpl::select 同时 poll 两个 future，哪个先返回 Poll::Ready 就立即返回，
+        // 另一个 future 被丢弃（不再 poll，也不会继续执行）。
+        //
+        // 返回值类型：trpl::Either<T, ()>
+        //   Either::Left(output) — future_to_try 先完成，output 是它的返回值
+        //   Either::Right(())    — timer 先完成，表示已超时
         match trpl::select(future_to_try, timer).await {
-            trpl::Either::Left(output) => Ok(output),
-            trpl::Either::Right(_) => Err(max_time),
+            trpl::Either::Left(output) => Ok(output),   // 业务 future 胜出
+            trpl::Either::Right(_)     => Err(max_time), // 计时器胜出 → 超时
         }
     }
 
+    // ── 使用示例 ────────────────────────────────────────────────────────────
     trpl::block_on(async {
+        // 模拟一个耗时 5 秒的慢 future
         let slow = async {
             trpl::sleep(std::time::Duration::from_secs(5)).await;
             "Finally finished!"
         };
 
+        // 给它最多 2 秒的执行时间：
+        //   slow 需要 5s，而超时设为 2s，因此计时器会先完成，
+        //   slow future 被丢弃，timeout 返回 Err(2s)。
         match timeout(slow, std::time::Duration::from_secs(2)).await {
             Ok(message) => println!("Succeeded with: {}", message),
             Err(duration) => println!("Failed after {} seconds", duration.as_secs()),
+            // 预期输出：Failed after 2 seconds
         }
     });
 }
